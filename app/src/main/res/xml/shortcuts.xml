@@ -1,0 +1,8 @@
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <share-target android:targetClass="fe.firefoxsync.activity.SendTabActivity">
+        <data android:mimeType="text/plain" />
+        <data android:mimeType="text/*"/>
+        <data android:mimeType="*/*"/>
+        <category android:name="fe.firefoxsync.category.LINK_SHARE_TARGET" />
+    </share-target>
+</shortcuts>

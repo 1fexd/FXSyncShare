@@ -1,4 +1,4 @@
-package fe.firefoxsync.share.ui.theme
+package fe.firefoxsync.theme
 
 import androidx.compose.ui.graphics.Color
 

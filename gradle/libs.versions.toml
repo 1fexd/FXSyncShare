@@ -17,6 +17,10 @@ org-gradle-kotlin-kotlin-dsl = { id = "org.gradle.kotlin.kotlin-dsl", version = 
 kotlin = "1.9.24"
 
 koin = "3.6.0-Beta4"
+lifecycle-process = "2.8.4"
+lifecycle-runtime-ktx = "2.8.3"
+activity-compose = "1.9.1"
+compose-bom = "2023.08.00"
 
 [libraries]
 
@@ -39,3 +43,14 @@ support-rusthttp = "org.mozilla.components:support-rusthttp:_"
 lib-fetch-httpurlconnection = "org.mozilla.components:lib-fetch-httpurlconnection:_"
 
 lib-dataprotect = "org.mozilla.components:lib-dataprotect:_"
+lifecycle-process = { group = "androidx.lifecycle", name = "lifecycle-process", version.ref = "lifecycle-process" }
+lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycle-runtime-ktx" }
+activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activity-compose" }
+compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "compose-bom" }
+ui = { group = "androidx.compose.ui", name = "ui" }
+ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
+ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
+ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
+ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
+ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
+material3 = { group = "androidx.compose.material3", name = "material3" }

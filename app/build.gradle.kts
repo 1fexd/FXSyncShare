@@ -78,8 +78,18 @@ dependencies {
     implementation(MozillaComponents.lib.dataProtect)
 
     implementation(AndroidX.core.ktx)
+    implementation(AndroidX.lifecycle.process)
+    implementation(AndroidX.lifecycle.runtime.compose)
+    implementation(AndroidX.lifecycle.viewModelCompose)
     implementation(AndroidX.lifecycle.runtime.ktx)
     implementation(AndroidX.activity.compose)
+    implementation(AndroidX.navigation.compose)
+
+    implementation(Koin.android)
+    implementation(Koin.compose)
+
+    implementation("com.github.1fexd:compose-route-util:0.0.12")
+
 
     implementation(platform(AndroidX.compose.bom))
     implementation(AndroidX.compose.ui)
