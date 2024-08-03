@@ -10,9 +10,14 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import mozilla.components.browser.storage.sync.PlacesHistoryStorage
 import mozilla.components.concept.sync.*
 import mozilla.components.lib.fetch.httpurlconnection.HttpURLConnectionClient
+import mozilla.components.service.fxa.PeriodicSyncConfig
+import mozilla.components.service.fxa.SyncConfig
+import mozilla.components.service.fxa.SyncEngine
 import mozilla.components.service.fxa.manager.FxaAccountManager
+import mozilla.components.service.fxa.sync.GlobalSyncableStoreProvider
 import mozilla.components.support.base.log.Log
 import mozilla.components.support.base.log.sink.AndroidLogSink
 import mozilla.components.support.rusthttp.RustHttpConfig
@@ -52,15 +57,20 @@ class FxaService(
                 capabilities = setOf(DeviceCapability.SEND_TAB),
                 secureStateAtRest = true
             ),
-            syncConfig = null
+            syncConfig = SyncConfig(
+                supportedEngines = setOf(SyncEngine.History),
+                periodicSyncConfig = PeriodicSyncConfig(periodMinutes = 15, initialDelayMinutes = 5),
+            ),
         )
     }
+    private val historyStorage = lazy { PlacesHistoryStorage(applicationContext) }
 
     init {
         RustLog.enable()
         RustHttpConfig.setClient(lazy { HttpURLConnectionClient() })
 
         Log.addSink(AndroidLogSink())
+        GlobalSyncableStoreProvider.configureStore(SyncEngine.History to historyStorage)
     }
 
     private val _accountEvents = MutableStateFlow<AccountEvent>(AccountEvent.Waiting)

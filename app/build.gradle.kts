@@ -81,6 +81,8 @@ dependencies {
     implementation(AndroidX.compose.ui.withVersion("1.7.0-beta06"))
     implementation(AndroidX.compose.ui.toolingPreview)
     implementation(AndroidX.compose.material3.withVersion("1.3.0-beta05"))
+    implementation(AndroidX.compose.material.icons.core)
+    implementation(AndroidX.compose.material.icons.extended)
 
     implementation(AndroidX.core.ktx)
     implementation(AndroidX.lifecycle.process)
