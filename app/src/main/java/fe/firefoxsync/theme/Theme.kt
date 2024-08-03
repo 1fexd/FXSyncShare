@@ -81,3 +81,12 @@ fun BaseComponentActivity.BoxAppHost(
         Box(modifier = modifier, contentAlignment = contentAlignment, content = content)
     }
 }
+
+@Composable
+fun PreviewTheme(content: @Composable () -> Unit) {
+    MaterialTheme(
+        colorScheme = LightColorScheme,
+        typography = Typography,
+        content = content
+    )
+}

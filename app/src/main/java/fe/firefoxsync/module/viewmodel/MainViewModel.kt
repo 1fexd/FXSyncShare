@@ -2,7 +2,7 @@ package fe.firefoxsync.module.viewmodel
 
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
-import fe.firefoxsync.module.firefox.FirefoxSyncService
+import fe.firefoxsync.module.fxa.FxaService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -13,13 +13,19 @@ import mozilla.components.concept.sync.OAuthAccount
 import mozilla.components.service.fxa.FxaAuthData
 import mozilla.components.service.fxa.toAuthType
 
-class MainViewModel(val firefoxSync: FirefoxSyncService) : ViewModel(), DeviceConstellationObserver {
+class MainViewModel(val fxaService: FxaService) : ViewModel(), DeviceConstellationObserver {
+    val redirectUrl = fxaService.config.redirectUrl
+
     suspend fun startLogin() = withContext(Dispatchers.IO) {
-        firefoxSync.accountManager.beginAuthentication(entrypoint = FirefoxSyncService.entrypoint)
+        fxaService.accountManager.beginAuthentication(entrypoint = FxaService.entrypoint)
     }
 
     suspend fun finishLogin(code: String, state: String, action: String) = withContext(Dispatchers.IO) {
-        firefoxSync.accountManager.finishAuthentication(FxaAuthData(action.toAuthType(), code = code, state = state))
+        fxaService.accountManager.finishAuthentication(FxaAuthData(action.toAuthType(), code = code, state = state))
+    }
+
+    suspend fun refreshDevices() = withContext(Dispatchers.IO) {
+        fxaService.accountManager.authenticatedAccount()?.deviceConstellation()?.refreshDevices()
     }
 
     private val _deviceConstellationState = MutableStateFlow<ConstellationState?>(null)
@@ -35,10 +41,6 @@ class MainViewModel(val firefoxSync: FirefoxSyncService) : ViewModel(), DeviceCo
 
     override fun onDevicesUpdate(constellation: ConstellationState) {
         _deviceConstellationState.tryEmit(constellation)
-        firefoxSync.updateShareTargets(constellation)
-    }
-
-    suspend fun refreshDevices() = withContext(Dispatchers.IO) {
-        firefoxSync.accountManager.authenticatedAccount()?.deviceConstellation()?.refreshDevices()
+        fxaService.publishShortcuts(constellation)
     }
 }

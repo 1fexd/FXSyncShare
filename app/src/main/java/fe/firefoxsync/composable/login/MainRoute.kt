@@ -29,7 +29,7 @@ fun MainRoute(navController: NavHostController, viewModel: MainViewModel = koinV
 
     var authUrl by rememberSaveable { mutableStateOf<String?>(null) }
 
-    val accountEvent by viewModel.firefoxSync.accountEvents.collectAsStateWithLifecycle(context = Dispatchers.Main)
+    val accountEvent by viewModel.fxaService.accountEvents.collectAsStateWithLifecycle(context = Dispatchers.Main)
     val constellationState by viewModel.deviceConstellationState.collectAsStateWithLifecycle(context = Dispatchers.Main)
 
     var hasRegisteredObservers by remember { mutableStateOf(false) }
@@ -39,7 +39,7 @@ fun MainRoute(navController: NavHostController, viewModel: MainViewModel = koinV
         Log.d("MainRoute", "accountEvent: $accountEvent")
 
         if (constellationState != null || hasRegisteredObservers) return@LaunchedEffect
-        viewModel.firefoxSync.accountManager.authenticatedAccount()?.let { account ->
+        viewModel.fxaService.accountManager.authenticatedAccount()?.let { account ->
             viewModel.registerDeviceObserver(account, owner)
             hasRegisteredObservers = true
         }
@@ -70,7 +70,7 @@ fun MainRoute(navController: NavHostController, viewModel: MainViewModel = koinV
             }
         }
     } else {
-        LoginWebView(redirectUrl = viewModel.firefoxSync.redirectUrl, authUrl = authUrl!!) { code, state, action ->
+        LoginWebView(redirectUrl = viewModel.redirectUrl, authUrl = authUrl!!) { code, state, action ->
             scope.launch {
                 viewModel.finishLogin(code, state, action)
                 authUrl = null

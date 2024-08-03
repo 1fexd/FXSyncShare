@@ -31,6 +31,7 @@ object MozillaComponents : DependencyGroup(group = "org.mozilla.components") {
     object Support : IsNotADependency {
         val rustLog = DependencyNotation(group = group, name = "support-rustlog")
         val rustHttp = DependencyNotation(group = group, name = "support-rusthttp")
+        val utils = DependencyNotation(group = group, name = "support-utils")
     }
 
     val lib = Lib

@@ -1,4 +1,4 @@
-package fe.firefoxsync.module.firefox
+package fe.firefoxsync.module.fxa
 
 import kotlinx.coroutines.flow.MutableStateFlow
 import mozilla.components.concept.sync.*

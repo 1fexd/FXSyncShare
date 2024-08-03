@@ -74,8 +74,13 @@ dependencies {
     implementation(MozillaComponents.service.syncAutofill)
     implementation(MozillaComponents.support.rustLog)
     implementation(MozillaComponents.support.rustHttp)
+    implementation(MozillaComponents.support.utils)
     implementation(MozillaComponents.lib.fetchHttpUrlConnection)
     implementation(MozillaComponents.lib.dataProtect)
+
+    implementation(AndroidX.compose.ui.withVersion("1.7.0-beta06"))
+    implementation(AndroidX.compose.ui.toolingPreview)
+    implementation(AndroidX.compose.material3.withVersion("1.3.0-beta05"))
 
     implementation(AndroidX.core.ktx)
     implementation(AndroidX.lifecycle.process)
@@ -85,24 +90,23 @@ dependencies {
     implementation(AndroidX.activity.compose)
     implementation(AndroidX.navigation.compose)
 
+    implementation(Google.android.material)
+    implementation(Google.accompanist.permissions)
+
     implementation(Koin.android)
     implementation(Koin.compose)
 
     implementation("com.github.1fexd:compose-route-util:0.0.12")
 
+    testImplementation(Testing.robolectric)
+    testImplementation(Testing.junit.jupiter)
 
-    implementation(platform(AndroidX.compose.bom))
-    implementation(AndroidX.compose.ui)
-    implementation(AndroidX.compose.ui.graphics)
-    implementation(AndroidX.compose.ui.toolingPreview)
-    implementation(AndroidX.compose.material3)
-
-    testImplementation(Testing.junit4)
-
+    testImplementation(AndroidX.test.core)
+    testImplementation(AndroidX.test.coreKtx)
+    testImplementation(AndroidX.test.ext.truth)
+    testImplementation(AndroidX.test.runner)
+    androidTestUtil(AndroidX.test.orchestrator)
     androidTestImplementation(platform(AndroidX.compose.bom))
-    androidTestImplementation(AndroidX.test.ext.junit)
-    androidTestImplementation(AndroidX.test.espresso.core)
-    androidTestImplementation(AndroidX.compose.ui.testJunit4)
 
     debugImplementation(AndroidX.compose.ui.tooling)
     debugImplementation(AndroidX.compose.ui.testManifest)
