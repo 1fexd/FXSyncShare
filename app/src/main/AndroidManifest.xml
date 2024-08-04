@@ -5,7 +5,7 @@
     <uses-permission android:name="android.permission.INTERNET"/>
 
     <application
-            android:name="fe.firefoxsync.FirefoxSyncApp"
+            android:name=".FXSyncShareApp"
             android:allowBackup="true"
             android:enableOnBackInvokedCallback="true"
             android:icon="@mipmap/ic_launcher"
@@ -15,7 +15,7 @@
             android:theme="@style/AppTheme"
             tools:targetApi="tiramisu">
         <activity
-                android:name="fe.firefoxsync.activity.main.MainActivity"
+                android:name=".activity.main.MainActivity"
                 android:exported="true"
                 android:launchMode="singleTask"
                 android:theme="@style/AppTheme">
@@ -26,7 +26,7 @@
             </intent-filter>
         </activity>
         <activity
-                android:name="fe.firefoxsync.activity.bottomsheet.BottomSheetActivity"
+                android:name=".activity.bottomsheet.BottomSheetActivity"
                 android:excludeFromRecents="true"
                 android:exported="true"
                 android:launchMode="singleInstance"
@@ -48,7 +48,7 @@
                 android:name=".activity.bottomsheet.BottomSheetActivityContextMenuAction"
                 android:exported="true"
                 android:label="@string/share_to_firefoxsync"
-                android:targetActivity="fe.firefoxsync.activity.bottomsheet.BottomSheetActivity">
+                android:targetActivity=".activity.bottomsheet.BottomSheetActivity">
             <intent-filter>
                 <action android:name="android.intent.action.PROCESS_TEXT"/>
                 <category android:name="android.intent.category.DEFAULT"/>

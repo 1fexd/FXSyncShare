@@ -1,23 +1,56 @@
 import de.fayard.refreshVersions.core.versionFor
+import fe.buildsrc.KotlinClosure4
 import fe.buildsrc.MozillaComponents
 import fe.buildsrc.Version
+import net.nemerosa.versioning.ReleaseInfo
+import net.nemerosa.versioning.SCMInfo
+import net.nemerosa.versioning.VersioningExtension
+import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id("net.nemerosa.versioning")
 }
 
+// Must be defined before the android block, or else it won't work
+versioning {
+    releaseMode = KotlinClosure4<String?, String?, String?, VersioningExtension, String>({ _, _, currentTag, _ ->
+        currentTag
+    })
+
+    releaseParser = KotlinClosure2<SCMInfo, String, ReleaseInfo>({ info, _ -> ReleaseInfo("release", info.tag) })
+}
+
+var appName = "FXSyncShare"
+val dtf: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH_mm_ss")
+
 android {
-    namespace = "fe.firefoxsync.share"
+    namespace = "fe.fxsyncshare"
     compileSdk = Version.COMPILE_SDK
 
     defaultConfig {
-        applicationId = "fe.firefoxsync.share"
+        applicationId = "fe.fxsyncshare"
         minSdk = Version.MIN_SDK
         targetSdk = Version.COMPILE_SDK
 
-        versionCode = 1
-        versionName = "1.0"
+        val now = System.currentTimeMillis()
+        val localDateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(now), ZoneId.of("UTC"))
+        val versionInfo = providers.provider { versioning.info }.get()
+
+        versionCode = versionInfo.tag?.let {
+            versionInfo.versionNumber.versionCode
+        } ?: (now / 1000).toInt()
+
+        versionName = versionInfo.tag ?: versionInfo.full
+        val archivesBaseName = if (versionInfo.tag != null) {
+            "$appName-$versionName"
+        } else "$appName-${dtf.format(localDateTime)}-$versionName"
+
+        setProperty("archivesBaseName", archivesBaseName)
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {

@@ -1,8 +1,8 @@
 <resources>
-    <string name="app_name">FirefoxSyncShare</string>
+    <string name="app_name">FXSyncShare</string>
     <string name="title_activity_send_tab">SendTabActivity</string>
     <string name="title_activity_bottom_sheet">BottomSheetActivity</string>
     <string name="default_device_name_2">%1$s on %2$s %3$s</string>
-    <string name="share_to_firefoxsync">Share to FirefoxSyncShare</string>
+    <string name="share_to_firefoxsync">Share to FXSyncShare</string>
     <string name="link_sent">Link sent!</string>
 </resources>
