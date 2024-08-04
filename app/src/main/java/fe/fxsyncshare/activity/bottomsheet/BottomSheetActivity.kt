@@ -70,9 +70,10 @@ class BottomSheetActivity : BaseComponentActivity() {
             }
 
             val drawerState = rememberModalBottomSheetState()
+            val coroutineScope = rememberCoroutineScope()
 
             val hideDrawer: () -> Unit = {
-                lifecycleScope.launch { drawerState.hide() }.invokeOnCompletion { finish() }
+                coroutineScope.launch { drawerState.hide() }.invokeOnCompletion { finish() }
             }
 
             val configuration = LocalConfiguration.current
@@ -120,6 +121,8 @@ class BottomSheetActivity : BaseComponentActivity() {
 
     @Composable
     fun SyncDeviceRow(targets: List<Device>, sendTab: suspend (Device) -> Unit, closeDrawer: () -> Unit) {
+        val coroutineScope = rememberCoroutineScope()
+
         LazyRow(horizontalArrangement = Arrangement.spacedBy(5.dp)) {
             items(items = targets, key = { it.id }) { device ->
                 var loading by remember { mutableStateOf(false) }
@@ -129,7 +132,7 @@ class BottomSheetActivity : BaseComponentActivity() {
                     device = device,
                     onClick = {
                         loading = true
-                        lifecycleScope.launch { sendTab(device) }.invokeOnCompletion {
+                        coroutineScope.launch { sendTab(device) }.invokeOnCompletion {
                             loading = false
                             Toast.makeText(this@BottomSheetActivity, R.string.link_sent, Toast.LENGTH_SHORT).show()
                             closeDrawer()
