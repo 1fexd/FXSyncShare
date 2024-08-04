@@ -7,7 +7,7 @@ import androidx.core.app.Person
 import androidx.core.content.pm.ShortcutInfoCompat
 import androidx.core.content.pm.ShortcutManagerCompat
 import androidx.core.graphics.drawable.IconCompat
-import fe.fxsyncshare.share.R
+import fe.fxsyncshare.R
 import mozilla.components.concept.sync.Device
 
 object ShortcutUtil {

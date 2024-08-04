@@ -25,13 +25,13 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import fe.fxsyncshare.R
 import fe.fxsyncshare.activity.BaseComponentActivity
 import fe.fxsyncshare.component.icon.FilledIcon
 import fe.fxsyncshare.component.icon.IconDefaults
 import fe.fxsyncshare.component.icon.containerColor
 import fe.fxsyncshare.component.icon.contentColor
 import fe.fxsyncshare.module.viewmodel.BottomSheetViewModel
-import fe.fxsyncshare.share.R
 import fe.fxsyncshare.theme.PreviewTheme
 import fe.fxsyncshare.util.IntentParser
 import kotlinx.coroutines.Dispatchers

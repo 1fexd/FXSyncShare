@@ -2,7 +2,7 @@ package fe.fxsyncshare.module.fxa
 
 import android.content.Context
 import android.os.Build
-import fe.fxsyncshare.share.R
+import fe.fxsyncshare.R
 
 object FxaUtil {
     fun defaultDeviceName(context: Context): String {

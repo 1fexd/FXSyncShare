@@ -31,5 +31,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "FirefoxSyncShare"
+rootProject.name = "FXSyncShare"
 include(":app")
