@@ -83,6 +83,17 @@ android {
             isMinifyEnabled = false
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
+
+        register("nightly") {
+            initWith(buildTypes.getByName("release"))
+            matchingFallbacks.add("release")
+            signingConfig = signingConfigs.getByName("env")
+
+            applicationIdSuffix = ".nightly"
+            versionNameSuffix = "-nightly"
+
+            resValue("string", "app_name", "$appName Nightly")
+        }
     }
 
     compileOptions {
