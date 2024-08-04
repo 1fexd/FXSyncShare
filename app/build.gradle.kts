@@ -2,6 +2,8 @@ import de.fayard.refreshVersions.core.versionFor
 import fe.buildsrc.KotlinClosure4
 import fe.buildsrc.MozillaComponents
 import fe.buildsrc.Version
+import fe.buildsrc.extension.getOrSystemEnv
+import fe.buildsrc.extension.readPropertiesOrNull
 import net.nemerosa.versioning.ReleaseInfo
 import net.nemerosa.versioning.SCMInfo
 import net.nemerosa.versioning.VersioningExtension
@@ -58,7 +60,25 @@ android {
         }
     }
 
+    signingConfigs {
+        register("env") {
+            val properties = rootProject.file(".ignored/keystore.properties").readPropertiesOrNull()
+
+            storeFile = properties.getOrSystemEnv("KEYSTORE_FILE_PATH")?.let { rootProject.file(it) }
+            storePassword = properties.getOrSystemEnv("KEYSTORE_PASSWORD")
+            keyAlias = properties.getOrSystemEnv("KEY_ALIAS")
+            keyPassword = properties.getOrSystemEnv("KEY_PASSWORD")
+        }
+    }
+
     buildTypes {
+        debug {
+            applicationIdSuffix = ".debug"
+            versionNameSuffix = "-debug"
+
+            resValue("string", "app_name", "$appName Debug")
+        }
+
         release {
             isMinifyEnabled = false
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
