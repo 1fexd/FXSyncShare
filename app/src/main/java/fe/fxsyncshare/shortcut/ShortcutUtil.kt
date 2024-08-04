@@ -1,19 +1,23 @@
 package fe.fxsyncshare.shortcut
 
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.util.Log
 import androidx.core.app.Person
+import androidx.core.content.LocusIdCompat
 import androidx.core.content.pm.ShortcutInfoCompat
 import androidx.core.content.pm.ShortcutManagerCompat
 import androidx.core.graphics.drawable.IconCompat
 import fe.fxsyncshare.R
+import fe.fxsyncshare.activity.bottomsheet.BottomSheetActivity
 import mozilla.components.concept.sync.Device
 
 object ShortcutUtil {
     const val CAPABILITY_SEND_MESSAGE = "actions.intent.SEND_MESSAGE"
     const val CAPABILITY_RECEIVE_MESSAGE = "actions.intent.RECEIVE_MESSAGE"
-    const val CATEGORY_LINK_SHARE_TARGET = "fe.firefoxsync.category.LINK_SHARE_TARGET"
+    const val CATEGORY_LINK_SHARE_TARGET = "fe.fxsyncshare.category.LINK_SHARE_TARGET"
+    const val EXTRA_DEVICE_ID = "fe.fxsyncshare.intent.extra.DEVICE_ID"
 
     enum class Direction(val capability: String?) {
         None(null),
@@ -28,7 +32,7 @@ object ShortcutUtil {
         }
 
         val maxShortcuts = ShortcutManagerCompat.getMaxShortcutCountPerActivity(context)
-        if(devices.size > maxShortcuts) {
+        if (devices.size > maxShortcuts) {
             Log.w("ShortcutUtil", "Max shortcut count ($maxShortcuts) > ${devices.size}, truncating")
         }
 
@@ -51,18 +55,26 @@ object ShortcutUtil {
             .setLongLabel(device.id)
             .setLongLived(true)
 //            .setRank(rank)
-            .setIntent(Intent(Intent.ACTION_SEND))
-            .apply { direction.capability?.let { addCapabilityBinding(it) } }
+            .setActivity(ComponentName(context, BottomSheetActivity::class.java))
+            .setIntent(device.createIntent(context))
             .setCategories(setOf(CATEGORY_LINK_SHARE_TARGET))
             .setPerson(device.toPerson())
+            .setLocusId(LocusIdCompat(device.id))
+            .apply { direction.capability?.let { addCapabilityBinding(it) } }
             .build()
     }
 
     private fun Device.toPerson(): Person {
         return Person.Builder()
             .setKey(id)
-            .setImportant(true)
+//            .setImportant(true)
             .setName(displayName)
             .build()
+    }
+
+    private fun Device.createIntent(context: Context): Intent {
+        return Intent(context, BottomSheetActivity::class.java)
+            .setAction(Intent.ACTION_SEND)
+            .putExtra(EXTRA_DEVICE_ID, id)
     }
 }
