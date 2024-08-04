@@ -20,12 +20,11 @@ class BottomSheetViewModel(
         deviceConstellation?.refreshDevices()
     }
 
-    suspend fun getDeviceConstellation() = withContext(Dispatchers.IO) {
-        firefoxSync.accountEvents.filterIsInstance<AccountEvent.Ready>()
+    suspend fun fetchDeviceConstellation() = withContext(Dispatchers.IO) {
+        deviceConstellation ?: firefoxSync.accountEvents.filterIsInstance<AccountEvent.Ready>()
             .mapNotNull { it.authenticatedAccount?.deviceConstellation() }
             .firstOrNull()
     }
-
 
     private val _deviceConstellationFlow = MutableStateFlow<ConstellationState?>(null)
     val deviceConstellationFlow = _deviceConstellationFlow.asStateFlow()

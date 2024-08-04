@@ -1,13 +1,6 @@
-import com.android.build.api.dsl.VariantDimension
 import de.fayard.refreshVersions.core.versionFor
-import fe.buildsrc.*
-import net.nemerosa.versioning.ReleaseInfo
-import net.nemerosa.versioning.SCMInfo
-import net.nemerosa.versioning.VersioningExtension
-import java.time.Instant
-import java.time.LocalDateTime
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
+import fe.buildsrc.MozillaComponents
+import fe.buildsrc.Version
 
 plugins {
     id("com.android.application")
@@ -58,7 +51,19 @@ android {
 
     packaging {
         resources {
-            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            excludes += "/META-INF/{AL2.0,LGPL2.1,atomicfu.kotlin_module,LICENSE.md,LICENSE-notice.md}"
+        }
+
+        jniLibs {
+            useLegacyPackaging = true
+        }
+    }
+
+    splits {
+        abi {
+            isEnable = true
+            reset()
+            include("x86", "armeabi-v7a", "arm64-v8a")
         }
     }
 }

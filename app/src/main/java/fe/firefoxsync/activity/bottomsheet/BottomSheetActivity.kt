@@ -3,7 +3,7 @@ package fe.firefoxsync.activity.bottomsheet
 import android.content.res.Configuration
 import android.os.Bundle
 import android.util.Log
-import androidx.compose.foundation.clickable
+import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -13,26 +13,26 @@ import androidx.compose.material.icons.filled.Computer
 import androidx.compose.material.icons.filled.DeviceUnknown
 import androidx.compose.material.icons.filled.Smartphone
 import androidx.compose.material.icons.filled.TabletAndroid
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import fe.firefoxsync.activity.BaseComponentActivity
 import fe.firefoxsync.component.icon.FilledIcon
-import fe.firefoxsync.composable.util.defaultRoundedCornerShape
+import fe.firefoxsync.component.icon.IconDefaults
+import fe.firefoxsync.component.icon.containerColor
+import fe.firefoxsync.component.icon.contentColor
 import fe.firefoxsync.module.viewmodel.BottomSheetViewModel
+import fe.firefoxsync.share.R
 import fe.firefoxsync.theme.PreviewTheme
 import fe.firefoxsync.util.IntentParser
 import kotlinx.coroutines.Dispatchers
@@ -57,9 +57,10 @@ class BottomSheetActivity : BaseComponentActivity() {
         val url = uri.toString()
 
         lifecycleScope.launch {
-            viewModel.getDeviceConstellation()?.let { constellation ->
+            viewModel.fetchDeviceConstellation()?.let { constellation ->
                 constellation.registerDeviceObserver(viewModel, this@BottomSheetActivity, autoPause = true)
-                constellation.refreshDevices()
+                val success = constellation.refreshDevices()
+                Log.d("Constellation", "Refresh devices success=$success")
             }
         }
 
@@ -69,11 +70,10 @@ class BottomSheetActivity : BaseComponentActivity() {
                 constellationState?.otherDevices?.filter { it.capabilities.contains(DeviceCapability.SEND_TAB) }
             }
 
-            val coroutineScope = rememberCoroutineScope()
             val drawerState = rememberModalBottomSheetState()
 
             val hideDrawer: () -> Unit = {
-                coroutineScope.launch { drawerState.hide() }.invokeOnCompletion { finish() }
+                lifecycleScope.launch { drawerState.hide() }.invokeOnCompletion { finish() }
             }
 
             val configuration = LocalConfiguration.current
@@ -91,77 +91,122 @@ class BottomSheetActivity : BaseComponentActivity() {
                 ),
                 hide = hideDrawer,
                 sheetContent = {
-                    if (targets != null) {
-                        val command = DeviceCommandOutgoing.SendTab("", url)
+                    SheetContainer {
+                        if (targets != null) {
+                            val command = DeviceCommandOutgoing.SendTab("", url)
 
-                        SyncDeviceRow(targets = targets, onClick = { device ->
-                            coroutineScope.launch {
-                                viewModel.sendTab(device, command)
-                                drawerState.hide()
-                            }.invokeOnCompletion { finish() }
-                        })
+                            SyncDeviceRow(
+                                targets = targets,
+                                sendTab = { viewModel.sendTab(it, command) },
+                                closeDrawer = hideDrawer
+                            )
+                        } else {
+                            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                        }
                     }
                 }
             )
         }
     }
-}
 
-@Composable
-fun SyncDeviceRow(targets: List<Device>, onClick: (Device) -> Unit) {
-    LazyRow(horizontalArrangement = Arrangement.spacedBy(5.dp)) {
-        items(items = targets, key = { it.id }) { device ->
-            SyncDevice(device = device, onClick = { onClick(device) })
+    @Composable
+    fun SheetContainer(content: @Composable BoxScope.() -> Unit) {
+        Box(
+            modifier = Modifier
+                .heightIn(min = 56.dp)
+                .fillMaxWidth()
+                .padding(start = 5.dp, end = 5.dp, bottom = 10.dp), content = content
+        )
+    }
+
+    @Composable
+    fun SyncDeviceRow(targets: List<Device>, sendTab: suspend (Device) -> Unit, closeDrawer: () -> Unit) {
+        LazyRow(horizontalArrangement = Arrangement.spacedBy(5.dp)) {
+            items(items = targets, key = { it.id }) { device ->
+                var loading by remember { mutableStateOf(false) }
+
+                SyncDevice(
+                    loading = loading,
+                    device = device,
+                    onClick = {
+                        loading = true
+                        lifecycleScope.launch { sendTab(device) }.invokeOnCompletion {
+                            loading = false
+                            Toast.makeText(this@BottomSheetActivity, R.string.link_sent, Toast.LENGTH_SHORT).show()
+                            closeDrawer()
+                        }
+                    }
+                )
+            }
         }
     }
-}
 
-fun DeviceType.toIcon() = when (this) {
-    DeviceType.DESKTOP -> Icons.Default.Computer
-    DeviceType.MOBILE -> Icons.Default.Smartphone
-    DeviceType.TABLET -> Icons.Default.TabletAndroid
-    else -> Icons.Default.DeviceUnknown
-}
+    private val DeviceType.icon
+        get() = when (this) {
+            DeviceType.DESKTOP -> Icons.Default.Computer
+            DeviceType.MOBILE -> Icons.Default.Smartphone
+            DeviceType.TABLET -> Icons.Default.TabletAndroid
+            else -> Icons.Default.DeviceUnknown
+        }
 
-@Composable
-fun SyncDevice(device: Device, onClick: () -> Unit) {
-    Box(
-        modifier = Modifier
-            .padding(all = 8.dp)
-            .clip(defaultRoundedCornerShape)
-            .clickable(onClick = onClick)
-            .padding(all = 2.dp)
-    ) {
-        Column(
-            modifier = Modifier.size(width = 120.dp, height = 120.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            FilledIcon(imageVector = device.deviceType.toIcon(), contentDescription = null)
+    @Composable
+    fun SyncDevice(loading: Boolean, device: Device, onClick: () -> Unit) {
+        TextButton(onClick = onClick) {
+            if (loading) {
+                SyncDeviceLoadIndicator()
+            } else {
+                FilledIcon(imageVector = device.deviceType.icon, contentDescription = null)
+            }
 
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.width(10.dp))
 
             Text(text = device.displayName, textAlign = TextAlign.Center)
         }
     }
-}
 
-@Preview(showBackground = true)
-@Composable
-fun SyncDevicePreview() {
-    PreviewTheme {
-        SyncDevice(
-            device = Device(
-                "123",
-                "FirefoxSync on Android 14",
-                DeviceType.DESKTOP,
-                false,
-                System.currentTimeMillis(),
-                listOf(DeviceCapability.SEND_TAB),
-                false,
-                null
-            ),
-            onClick = {}
-        )
+    @Composable
+    fun SyncDeviceLoadIndicator(
+        enabled: Boolean = true,
+        modifier: Modifier = Modifier,
+        iconSize: Dp = IconDefaults.IconSize,
+        containerSize: Dp = IconDefaults.ContainerSize,
+        shape: Shape = IconButtonDefaults.filledShape,
+        colors: IconButtonColors = IconButtonDefaults.filledIconButtonColors(),
+    ) {
+        Surface(
+            shape = shape,
+            color = colors.containerColor(enabled),
+            contentColor = colors.contentColor(enabled),
+        ) {
+            Box(modifier = Modifier.size(containerSize), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator(
+                    modifier = Modifier
+                        .size(iconSize)
+                        .then(modifier),
+                    color = colors.contentColor
+                )
+            }
+        }
+    }
+
+    @Composable
+    @Preview
+    fun SyncDevicePreview() {
+        PreviewTheme {
+            SyncDevice(
+                device = Device(
+                    "123",
+                    "FirefoxSync on Android 14",
+                    DeviceType.DESKTOP,
+                    false,
+                    System.currentTimeMillis(),
+                    listOf(DeviceCapability.SEND_TAB),
+                    false,
+                    null
+                ),
+                onClick = {},
+                loading = false
+            )
+        }
     }
 }

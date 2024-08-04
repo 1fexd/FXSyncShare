@@ -50,7 +50,7 @@ fun FilledIcon(
 }
 
 @Stable
-private fun IconButtonColors.containerColor(enabled: Boolean): Color =
+internal fun IconButtonColors.containerColor(enabled: Boolean): Color =
     if (enabled) containerColor else disabledContainerColor
 
 @Stable
