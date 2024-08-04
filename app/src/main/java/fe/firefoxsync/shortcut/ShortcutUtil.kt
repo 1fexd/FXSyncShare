@@ -46,7 +46,7 @@ object ShortcutUtil {
 
     private fun buildShortcut(context: Context, device: Device, direction: Direction): ShortcutInfoCompat {
         return ShortcutInfoCompat.Builder(context, device.id)
-            .setIcon(IconCompat.createWithResource(context, R.drawable.ic_launcher_foreground))
+            .setIcon(IconCompat.createWithResource(context, R.mipmap.ic_launcher))
             .setShortLabel(device.displayName)
             .setLongLabel(device.id)
             .setLongLived(true)
