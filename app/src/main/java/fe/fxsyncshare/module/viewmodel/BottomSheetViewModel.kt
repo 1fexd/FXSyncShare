@@ -1,8 +1,10 @@
 package fe.fxsyncshare.module.viewmodel
 
-import androidx.lifecycle.ViewModel
 import fe.fxsyncshare.module.fxa.AccountEvent
 import fe.fxsyncshare.module.fxa.FxaService
+import fe.fxsyncshare.module.preference.app.AppPreferenceRepository
+import fe.fxsyncshare.module.preference.app.AppPreferences
+import fe.fxsyncshare.module.viewmodel.base.BaseViewModel
 import fe.fxsyncshare.shortcut.ShortcutUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
@@ -11,8 +13,12 @@ import mozilla.components.concept.sync.*
 
 
 class BottomSheetViewModel(
+    private val preferenceRepository: AppPreferenceRepository,
     private val firefoxSync: FxaService,
-) : ViewModel(), DeviceConstellationObserver {
+) : BaseViewModel(preferenceRepository), DeviceConstellationObserver {
+    val theme = preferenceRepository.asState(AppPreferences.theme)
+    val themeAmoled = preferenceRepository.asState(AppPreferences.themeAmoled)
+
     private val deviceConstellation: DeviceConstellation?
         get() = firefoxSync.accountManager.authenticatedAccount()?.deviceConstellation()
 

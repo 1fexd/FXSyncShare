@@ -3,6 +3,7 @@ package fe.fxsyncshare.activity.main
 import android.os.Bundle
 import androidx.navigation.compose.rememberNavController
 import fe.fxsyncshare.activity.BaseComponentActivity
+import fe.fxsyncshare.composable.theme.AppTheme
 import fe.fxsyncshare.composable.theme.BoxAppHost
 import mozilla.components.support.base.log.logger.Logger
 
@@ -13,7 +14,7 @@ class MainActivity : BaseComponentActivity() {
         super.onCreate(savedInstanceState)
 
         setContent(edgeToEdge = false) {
-            BoxAppHost {
+            AppTheme {
                 val navController = rememberNavController()
 
                 MainNavHost(

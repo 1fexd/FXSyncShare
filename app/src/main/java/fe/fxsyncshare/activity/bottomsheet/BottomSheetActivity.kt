@@ -33,6 +33,7 @@ import fe.fxsyncshare.activity.BaseComponentActivity
 import fe.fxsyncshare.composable.component.bottomsheet.ImprovedBottomDrawer
 import fe.fxsyncshare.composable.component.icon.containerColor
 import fe.fxsyncshare.composable.component.icon.contentColor
+import fe.fxsyncshare.composable.theme.AppTheme
 import fe.fxsyncshare.module.viewmodel.BottomSheetViewModel
 import fe.fxsyncshare.util.IntentParser
 import kotlinx.coroutines.Dispatchers
@@ -47,7 +48,6 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 class BottomSheetActivity : BaseComponentActivity() {
     private val viewModel by viewModel<BottomSheetViewModel>()
 
-    @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -65,49 +65,56 @@ class BottomSheetActivity : BaseComponentActivity() {
         }
 
         setContent(edgeToEdge = true) {
-            val constellationState by viewModel.deviceConstellationFlow.collectAsStateWithLifecycle(context = Dispatchers.Main)
-            val targets = remember(constellationState) {
-                constellationState?.otherDevices?.filter { it.capabilities.contains(DeviceCapability.SEND_TAB) }
-            }
+            AppTheme { Wrapper(url) }
+        }
+    }
 
-            val drawerState = rememberModalBottomSheetState()
-            val coroutineScope = rememberCoroutineScope()
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Composable
+    fun Wrapper(url: String) {
+        val constellationState by viewModel.deviceConstellationFlow.collectAsStateWithLifecycle(context = Dispatchers.Main)
+        val targets = remember(constellationState) {
+            constellationState?.otherDevices?.filter { it.capabilities.contains(DeviceCapability.SEND_TAB) }
+        }
 
-            val hideDrawer: () -> Unit = {
-                coroutineScope.launch { drawerState.hide() }.invokeOnCompletion { finish() }
-            }
+        val drawerState = rememberModalBottomSheetState()
+        val coroutineScope = rememberCoroutineScope()
 
-            val configuration = LocalConfiguration.current
-            val landscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+        val hideDrawer: () -> Unit = {
+            coroutineScope.launch { drawerState.hide() }.invokeOnCompletion { finish() }
+        }
 
-            ImprovedBottomDrawer(
-                landscape = landscape,
-                isBlackTheme = false,
-                drawerState = drawerState,
-                shape = RoundedCornerShape(
-                    topStart = 22.0.dp,
-                    topEnd = 22.0.dp,
-                    bottomEnd = 0.0.dp,
-                    bottomStart = 0.0.dp
-                ),
-                hide = hideDrawer,
-                sheetContent = {
-                    SheetContainer {
-                        if (targets != null) {
-                            val command = DeviceCommandOutgoing.SendTab("", url)
+        val configuration = LocalConfiguration.current
+        val landscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+        val isBlackTheme = viewModel.themeAmoled()
 
-                            SyncDeviceRow(
-                                targets = targets,
-                                sendTab = { viewModel.sendTab(it, command) },
-                                closeDrawer = hideDrawer
-                            )
-                        } else {
-                            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-                        }
+        ImprovedBottomDrawer(
+            landscape = landscape,
+            isBlackTheme = isBlackTheme,
+            drawerState = drawerState,
+            shape = RoundedCornerShape(
+                topStart = 22.0.dp,
+                topEnd = 22.0.dp,
+                bottomEnd = 0.0.dp,
+                bottomStart = 0.0.dp
+            ),
+            hide = hideDrawer,
+            sheetContent = {
+                SheetContainer {
+                    if (targets != null) {
+                        val command = DeviceCommandOutgoing.SendTab("", url)
+
+                        SyncDeviceRow(
+                            targets = targets,
+                            sendTab = { viewModel.sendTab(it, command) },
+                            closeDrawer = hideDrawer
+                        )
+                    } else {
+                        CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                     }
                 }
-            )
-        }
+            }
+        )
     }
 
     @Composable
