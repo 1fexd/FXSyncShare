@@ -1,4 +1,4 @@
-package fe.fxsyncshare.composable.login
+package fe.fxsyncshare.composable.page.login
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -15,8 +15,8 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
-import fe.fxsyncshare.composable.main.LoginCallback
-import fe.fxsyncshare.composable.main.LoginWebViewClient
+import fe.fxsyncshare.composable.page.main.LoginCallback
+import fe.fxsyncshare.composable.page.main.LoginWebViewClient
 import fe.fxsyncshare.module.viewmodel.MainViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

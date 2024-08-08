@@ -5,4 +5,8 @@
     <string name="default_device_name_2">%1$s on %2$s %3$s</string>
     <string name="share_to_firefoxsync">Share to FXSyncShare</string>
     <string name="link_sent">Link sent!</string>
+    <string name="settings">Settings</string>
+    <string name="settings_theme__system">System</string>
+    <string name="settings_theme__light">Light</string>
+    <string name="settings_theme__dark">Dark</string>
 </resources>

@@ -1,7 +1,8 @@
 import de.fayard.refreshVersions.core.versionFor
 import fe.buildsrc.KotlinClosure4
-import fe.buildsrc.MozillaComponents
+import fe.buildsrc.dependency.MozillaComponents
 import fe.buildsrc.Version
+import fe.buildsrc.dependency._1fexd
 import fe.buildsrc.extension.getOrSystemEnv
 import fe.buildsrc.extension.readPropertiesOrNull
 import net.nemerosa.versioning.ReleaseInfo
@@ -167,7 +168,14 @@ dependencies {
     implementation(Koin.android)
     implementation(Koin.compose)
 
-    implementation("com.github.1fexd:compose-route-util:0.0.12")
+    implementation(_1fexd.android.preference.core)
+    implementation(_1fexd.android.preference.compose)
+    implementation(_1fexd.android.preference.composeMock)
+    implementation(_1fexd.android.compose.dialog)
+    implementation(_1fexd.android.compose.route)
+    implementation(_1fexd.android.span.compose)
+    implementation(_1fexd.android.uiKit.components)
+    implementation(_1fexd.android.uiKit.util)
 
     testImplementation(Testing.robolectric)
     testImplementation(Testing.junit.jupiter)

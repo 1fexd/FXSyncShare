@@ -1,4 +1,4 @@
-package fe.buildsrc
+package fe.buildsrc.dependency
 
 import de.fayard.refreshVersions.core.DependencyGroup
 import de.fayard.refreshVersions.core.DependencyNotation
@@ -39,5 +39,6 @@ object MozillaComponents : DependencyGroup(group = "org.mozilla.components") {
     object Lib : IsNotADependency {
         val fetchHttpUrlConnection = DependencyNotation(group = group, name = "lib-fetch-httpurlconnection")
         val dataProtect = DependencyNotation(group = group, name = "lib-dataprotect")
+        val publicSuffixList = DependencyNotation(group = group, name = "lib-publicsuffixlist")
     }
 }

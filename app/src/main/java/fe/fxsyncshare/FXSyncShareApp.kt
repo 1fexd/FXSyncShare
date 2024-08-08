@@ -7,6 +7,7 @@ import fe.fxsyncshare.module.fxa.firefoxSyncModule
 import fe.fxsyncshare.module.viewmodel.module.viewModelModule
 import fe.fxsyncshare.extension.koin.androidApplicationContext
 import fe.fxsyncshare.extension.koin.applicationLifecycle
+import fe.fxsyncshare.module.preference.preferenceRepositoryModule
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
 
@@ -24,6 +25,7 @@ class FXSyncShareApp : Application() {
             androidApplicationContext<FXSyncShareApp>(this@FXSyncShareApp)
             applicationLifecycle(lifecycleObserver)
             modules(
+                preferenceRepositoryModule,
                 firefoxSyncModule,
                 viewModelModule
             )

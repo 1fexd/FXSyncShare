@@ -3,7 +3,7 @@ package fe.fxsyncshare.activity.main
 import android.os.Bundle
 import androidx.navigation.compose.rememberNavController
 import fe.fxsyncshare.activity.BaseComponentActivity
-import fe.fxsyncshare.theme.BoxAppHost
+import fe.fxsyncshare.composable.theme.BoxAppHost
 import mozilla.components.support.base.log.logger.Logger
 
 class MainActivity : BaseComponentActivity() {

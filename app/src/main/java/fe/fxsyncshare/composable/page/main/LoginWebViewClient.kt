@@ -1,4 +1,4 @@
-package fe.fxsyncshare.composable.main
+package fe.fxsyncshare.composable.page.main
 
 import android.graphics.Bitmap
 import android.net.Uri

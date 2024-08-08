@@ -1,4 +1,4 @@
-package fe.fxsyncshare.activity.bottomsheet
+package fe.fxsyncshare.composable.component.bottomsheet
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.ColumnScope
