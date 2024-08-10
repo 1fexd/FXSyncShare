@@ -4,7 +4,8 @@ import android.graphics.Bitmap
 import android.net.Uri
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import fe.fxsyncshare.composable.page.main.LoginCallback
+
+typealias LoginCallback = (code: String, state: String, action: String) -> Unit
 
 class LoginWebViewClient(
     private val redirectUrl: String,

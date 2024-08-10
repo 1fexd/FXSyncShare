@@ -4,10 +4,9 @@ import android.content.Context
 import fe.android.preference.helper.compose.StatePreferenceRepository
 import org.koin.core.component.KoinComponent
 
-class AppPreferenceRepository(val context: Context) : StatePreferenceRepository(context), KoinComponent {
+class AppPreferenceRepository(context: Context) : StatePreferenceRepository(context), KoinComponent {
 
     init {
-        AppPreferences.migrate(this)
+        AppPreferences.runMigrations(this)
     }
-
 }

@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -26,15 +25,19 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
-import fe.android.compose.component.PreviewThemeNew
-import fe.android.compose.component.icon.FilledIcon
-import fe.android.compose.component.icon.IconDefaults
+import fe.android.compose.icon.iconPainter
+import fe.composekit.appbase.AppBaseComponentActivity
+import fe.composekit.appbase.AppTheme
+import fe.composekit.component.PreviewThemeNew
+import fe.composekit.component.icon.FilledIcon
+import fe.composekit.component.icon.IconDefaults
+import fe.composekit.theme.preference.PreferenceTheme
 import fe.fxsyncshare.R
-import fe.fxsyncshare.activity.BaseComponentActivity
 import fe.fxsyncshare.composable.component.bottomsheet.ImprovedBottomDrawer
 import fe.fxsyncshare.composable.component.icon.containerColor
 import fe.fxsyncshare.composable.component.icon.contentColor
-import fe.fxsyncshare.composable.theme.AppTheme
+import fe.fxsyncshare.composable.theme.AppColor
+import fe.fxsyncshare.composable.theme.Typography
 import fe.fxsyncshare.module.viewmodel.BottomSheetViewModel
 import fe.fxsyncshare.util.IntentParser
 import kotlinx.coroutines.Dispatchers
@@ -46,7 +49,7 @@ import mozilla.components.concept.sync.DeviceType
 import mozilla.components.support.utils.toSafeIntent
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
-class BottomSheetActivity : BaseComponentActivity() {
+class BottomSheetActivity : AppBaseComponentActivity() {
     private val viewModel by viewModel<BottomSheetViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -66,7 +69,13 @@ class BottomSheetActivity : BaseComponentActivity() {
         }
 
         setContent(edgeToEdge = true) {
-            AppTheme { Wrapper(url) }
+            AppTheme(
+                appColor = AppColor,
+                typography = Typography,
+                theme = viewModel.theme(),
+                materialYou = viewModel.themeMaterialYou(),
+                amoled = viewModel.themeAmoled()
+            ) { Wrapper(url) }
         }
     }
 
@@ -152,13 +161,13 @@ class BottomSheetActivity : BaseComponentActivity() {
         }
     }
 
-    private val DeviceType.icon
+    private val DeviceType.iconPainter
         get() = when (this) {
             DeviceType.DESKTOP -> Icons.Default.Computer
             DeviceType.MOBILE -> Icons.Default.Smartphone
             DeviceType.TABLET -> Icons.Default.TabletAndroid
             else -> Icons.Default.DeviceUnknown
-        }
+        }.iconPainter
 
     @Composable
     fun SyncDevice(modifier: Modifier = Modifier, loading: Boolean, device: Device, onClick: () -> Unit) {
@@ -166,7 +175,7 @@ class BottomSheetActivity : BaseComponentActivity() {
             if (loading) {
                 SyncDeviceLoadIndicator()
             } else {
-                FilledIcon(imageVector = device.deviceType.icon, contentDescription = null)
+                FilledIcon(icon = device.deviceType.iconPainter, contentDescription = null)
             }
 
             Spacer(modifier = Modifier.width(10.dp))

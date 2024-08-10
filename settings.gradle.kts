@@ -41,5 +41,14 @@ if (dev) {
         file("local.properties").reader().use(::load)
     }
 
-    includeBuild(properties["android-lifecycle-util.dir"].toString())
+    val composeKitDir = properties["composekit.dir"].toString()
+    includeBuild(composeKitDir) {
+        val projects = setOf("app-core", "theme-core", "theme-preference", "component", "core", "layout")
+
+        dependencySubstitution {
+            for (project in projects) {
+                substitute(module("com.github.1fexd.composekit:$project")).using(project(":$project"))
+            }
+        }
+    }
 }

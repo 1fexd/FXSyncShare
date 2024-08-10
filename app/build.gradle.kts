@@ -176,11 +176,12 @@ dependencies {
     implementation(_1fexd.android.span.compose)
     implementation(_1fexd.android.lifecycleUtil.core)
     implementation(_1fexd.android.lifecycleUtil.koin)
-//    implementation("fe.android.lifecycle.util.core:core")
-//    implementation("fe.android.lifecycle.util.koin:koin")
-
-    implementation(_1fexd.android.uiKit.components)
-    implementation(_1fexd.android.uiKit.util)
+    implementation(_1fexd.composeKit.app.core)
+    implementation(_1fexd.composeKit.theme.core)
+    implementation(_1fexd.composeKit.theme.preference)
+    implementation(_1fexd.composeKit.component)
+    implementation(_1fexd.composeKit.core)
+    implementation(_1fexd.composeKit.layout)
 
     implementation(COIL)
     implementation(COIL.compose)

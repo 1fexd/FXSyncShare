@@ -1,5 +1,6 @@
 package fe.fxsyncshare.module.viewmodel
 
+import fe.composekit.theme.preference.ThemePreferences
 import fe.fxsyncshare.module.fxa.AccountEvent
 import fe.fxsyncshare.module.fxa.FxaService
 import fe.fxsyncshare.module.preference.app.AppPreferenceRepository
@@ -16,8 +17,9 @@ class BottomSheetViewModel(
     private val preferenceRepository: AppPreferenceRepository,
     private val firefoxSync: FxaService,
 ) : BaseViewModel(preferenceRepository), DeviceConstellationObserver {
-    val theme = preferenceRepository.asState(AppPreferences.theme)
-    val themeAmoled = preferenceRepository.asState(AppPreferences.themeAmoled)
+    val theme = preferenceRepository.asState(ThemePreferences.theme)
+    val themeMaterialYou = preferenceRepository.asState(ThemePreferences.themeMaterialYou)
+    val themeAmoled = preferenceRepository.asState(ThemePreferences.themeAmoled)
 
     private val deviceConstellation: DeviceConstellation?
         get() = firefoxSync.accountManager.authenticatedAccount()?.deviceConstellation()

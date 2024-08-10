@@ -26,7 +26,7 @@ val HkGroteskSemiBold = TextStyle(fontFamily = HkGroteskFontFamily, fontWeight =
 // bodyMedium
 
 // Set of Material typography styles to start with
-val NewTypography = Typography(
+val Typography = Typography(
 //    titleLarge = TextStyle(
 //        fontFamily = HkGroteskFontFamily,
 //        fontWeight = FontWeight.SemiBold,

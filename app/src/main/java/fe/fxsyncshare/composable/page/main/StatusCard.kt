@@ -15,10 +15,9 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import fe.android.compose.component.PreviewThemeNew
-import fe.android.compose.component.card.ClickableAlertCard2
-import fe.android.compose.component.util.Default.Companion.text
-import fe.android.compose.component.util.Resource.Companion.textContent
+import fe.android.compose.text.DefaultContent.Companion.text
+import fe.android.compose.text.StringResourceContent.Companion.textContent
+import fe.composekit.component.PreviewThemeNew
 import fe.fxsyncshare.R
 import fe.fxsyncshare.Routes
 import fe.fxsyncshare.module.fxa.AccountEvent

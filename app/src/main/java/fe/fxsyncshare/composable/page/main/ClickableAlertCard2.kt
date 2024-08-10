@@ -1,5 +1,6 @@
 package fe.fxsyncshare.composable.page.main
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Warning
@@ -12,17 +13,19 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import fe.android.compose.component.PreviewThemeNew
-import fe.android.compose.component.card.AlertCardContentLayout
-import fe.android.compose.component.card.AlertCardDefaults
-import fe.android.compose.component.icon.FilledIcon
-import fe.android.compose.component.list.base.ShapeListItemDefaults
-import fe.android.compose.component.util.Default.Companion.text
-import fe.android.compose.component.util.TextContent
-import fe.android.compose.util.PaddingValuesSides
-import fe.android.compose.util.atElevation
-import fe.android.compose.util.clickable
-import fe.android.compose.util.exclude
+import fe.android.compose.extension.atElevation
+import fe.android.compose.extension.optionalClickable
+import fe.android.compose.icon.iconPainter
+import fe.android.compose.padding.Top
+import fe.android.compose.padding.exclude
+import fe.android.compose.text.DefaultContent.Companion.text
+import fe.android.compose.text.TextContent
+import fe.composekit.component.PreviewThemeNew
+import fe.composekit.component.card.AlertCardContentLayout
+import fe.composekit.component.card.AlertCardDefaults
+import fe.composekit.component.icon.FilledIcon
+import fe.composekit.component.list.column.shape.ShapeListItemDefaults
+import fe.composekit.component.shape.CustomShapeDefaults
 
 
 @Composable
@@ -41,8 +44,8 @@ fun ClickableAlertCard2(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(ShapeListItemDefaults.SingleShape)
-            .clickable(onClick), colors = colors
+            .clip(CustomShapeDefaults.SingleShape)
+            .optionalClickable(onClick), colors = colors
     ) {
         Row(
             modifier = Modifier
@@ -58,7 +61,7 @@ fun ClickableAlertCard2(
 
             if(imageVector != null){
                 FilledIcon(
-                    imageVector = imageVector,
+                    icon = imageVector.iconPainter,
                     iconSize = 20.dp,
                     containerSize = 34.dp,
                     contentDescription = contentDescription,
@@ -94,7 +97,7 @@ fun ClickableAlertCard2(
         }
 
         if (content != null) {
-            Box(modifier = Modifier.padding(AlertCardDefaults.InnerPadding.exclude(PaddingValuesSides.Top))) {
+            Box(modifier = Modifier.padding(AlertCardDefaults.InnerPadding.exclude(Top))) {
                 content()
             }
         }
