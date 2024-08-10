@@ -1,15 +1,12 @@
 package fe.fxsyncshare.module.fxa
 
-import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.lifecycle.LifecycleOwner
+import fe.android.lifecycle.LifecycleService
 import fe.fxsyncshare.FXSyncShareApp
 import fe.fxsyncshare.extension.koin.service
-import fe.fxsyncshare.lifecycle.Service
 import fe.fxsyncshare.shortcut.ShortcutUtil
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
 import mozilla.components.browser.storage.sync.PlacesHistoryStorage
 import mozilla.components.concept.sync.*
 import mozilla.components.lib.fetch.httpurlconnection.HttpURLConnectionClient
@@ -28,7 +25,6 @@ val firefoxSyncModule = module {
     service<FxaService> {
         FxaService(
             applicationContext,
-            applicationLifecycle.coroutineScope,
             FxaUtil.defaultDeviceName(applicationContext),
             FxaServerConfig.DemoReleaseClient
         )
@@ -37,10 +33,9 @@ val firefoxSyncModule = module {
 
 class FxaService(
     val applicationContext: FXSyncShareApp,
-    val coroutineScope: LifecycleCoroutineScope,
     val deviceName: String,
     val config: FxaServerConfig,
-) : Service {
+) : LifecycleService {
     companion object {
         val entrypoint = object : FxAEntryPoint {
             override val entryName: String = "main"
@@ -76,15 +71,22 @@ class FxaService(
     private val _accountEvents = MutableStateFlow<AccountEvent>(AccountEvent.Waiting)
     val accountEvents = _accountEvents.asStateFlow()
 
+    private val accountSyncObserver = AccountSyncObserver()
     private val accountEventObserver = AccountEventObserver(_accountEvents)
 
-    override fun onAppInitialized(owner: LifecycleOwner) {
-        accountManager.register(accountEventObserver, owner = owner, autoPause = true)
-        coroutineScope.launch(Dispatchers.IO) { accountManager.start() }
+    val syncStatus = accountSyncObserver.state
+
+    val oauthAccount = accountEventObserver.oauthAccount
+    val profile = accountEventObserver.profile
+
+    override suspend fun onAppInitialized(owner: LifecycleOwner) {
+        accountManager.registerForSyncEvents(accountSyncObserver, owner, true)
+        accountManager.register(accountEventObserver, owner, true)
+
+        accountManager.start()
     }
 
-    override fun onStop(owner: LifecycleOwner) {
-        accountManager.unregister(accountEventObserver)
+    override suspend fun onStop() {
     }
 
     fun publishShortcuts(constellation: ConstellationState) {

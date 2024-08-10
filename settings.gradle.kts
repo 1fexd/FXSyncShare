@@ -1,6 +1,7 @@
 @file:Suppress("UnstableApiUsage")
 
 import org.gradle.api.initialization.resolve.RepositoriesMode
+import java.util.*
 
 pluginManagement {
     repositories {
@@ -33,3 +34,12 @@ dependencyResolutionManagement {
 
 rootProject.name = "FXSyncShare"
 include(":app")
+
+val dev = false
+if (dev) {
+    val properties = Properties().apply {
+        file("local.properties").reader().use(::load)
+    }
+
+    includeBuild(properties["android-lifecycle-util.dir"].toString())
+}

@@ -174,8 +174,16 @@ dependencies {
     implementation(_1fexd.android.compose.dialog)
     implementation(_1fexd.android.compose.route)
     implementation(_1fexd.android.span.compose)
+    implementation(_1fexd.android.lifecycleUtil.core)
+    implementation(_1fexd.android.lifecycleUtil.koin)
+//    implementation("fe.android.lifecycle.util.core:core")
+//    implementation("fe.android.lifecycle.util.koin:koin")
+
     implementation(_1fexd.android.uiKit.components)
     implementation(_1fexd.android.uiKit.util)
+
+    implementation(COIL)
+    implementation(COIL.compose)
 
     testImplementation(Testing.robolectric)
     testImplementation(Testing.junit.jupiter)

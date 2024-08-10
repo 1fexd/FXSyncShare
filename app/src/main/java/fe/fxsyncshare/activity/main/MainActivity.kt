@@ -13,7 +13,7 @@ class MainActivity : BaseComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        setContent(edgeToEdge = false) {
+        setContent(edgeToEdge = true) {
             AppTheme {
                 val navController = rememberNavController()
 

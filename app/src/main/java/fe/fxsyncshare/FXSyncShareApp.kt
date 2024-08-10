@@ -2,23 +2,22 @@ package fe.fxsyncshare
 
 import android.app.Application
 import androidx.lifecycle.ProcessLifecycleOwner
-import fe.fxsyncshare.lifecycle.AppLifecycleObserver
-import fe.fxsyncshare.module.fxa.firefoxSyncModule
-import fe.fxsyncshare.module.viewmodel.module.viewModelModule
+import fe.android.lifecycle.AppLifecycleObserver
+import fe.android.lifecycle.koin.extension.applicationLifecycle
 import fe.fxsyncshare.extension.koin.androidApplicationContext
-import fe.fxsyncshare.extension.koin.applicationLifecycle
+import fe.fxsyncshare.module.fxa.firefoxSyncModule
 import fe.fxsyncshare.module.preference.preferenceRepositoryModule
+import fe.fxsyncshare.module.viewmodel.module.viewModelModule
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
 
 class FXSyncShareApp : Application() {
-    private lateinit var lifecycleObserver: AppLifecycleObserver
+    private val lifecycleObserver by lazy {
+        AppLifecycleObserver.observe(ProcessLifecycleOwner.get())
+    }
 
     override fun onCreate() {
         super.onCreate()
-
-        lifecycleObserver = AppLifecycleObserver(ProcessLifecycleOwner.get())
-        lifecycleObserver.attach()
 
         val koinApplication = startKoin {
             androidLogger()
@@ -31,6 +30,6 @@ class FXSyncShareApp : Application() {
             )
         }
 
-        lifecycleObserver.dispatchAppInitialized()
+        lifecycleObserver.onAppInitialized()
     }
 }

@@ -9,4 +9,21 @@
     <string name="settings_theme__system">System</string>
     <string name="settings_theme__light">Light</string>
     <string name="settings_theme__dark">Dark</string>
+    <string name="main_page__fxa_status_headline">Sync status</string>
+    <string name="settings_login__loading_title">Loading login…</string>
+    <string name="settings_login__login_fail_text">Login failed!</string>
+    <string name="settings_login__load_fail_text">Failed to loading login!</string>
+    <string name="settings_login__finishing_title">Finishing up…</string>
+    <string name="settings_main_setup__title_fxsyncshare_setup_success">FXSyncShare is set up</string>
+    <string name="settings_main_setup__title_fxsyncshare_setup_failure">FXSyncShare is not set up</string>
+    <string name="settings_main_setup__title_fxsyncshare_syncing">FXSyncShare is syncing</string>
+    <string name="settings_main_setup__text_fxsyncshare_setup_success_info">Logged in as %1$s</string>
+    <string name="settings_main_setup__text_fxsyncshare_setup_failure_info">Log in to Firefox Sync to begin</string>
+    <string name="settings_main_setup__text_fxsyncshare_setup_sync_info">Sync in progress…</string>
+    <string name="settings_main_setup__button_sync_now">Sync</string>
+    <string name="settings_main_setup__button_login">Login</string>
+    <string name="settings_main_setup_success__button_sync">Sync</string>
+    <string name="settings_main_setup_success__button_link_handlers">Link handlers</string>
+    <string name="settings_main_setup_success__button_connected_apps">Connected apps</string>
+    <string name="settings_main_setup_success__subtitle_quick_settings">Quick settings</string>
 </resources>

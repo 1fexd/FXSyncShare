@@ -4,8 +4,10 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import fe.fxsyncshare.composable.page.login.MainRoute
+import fe.android.compose.route.util.argumentRouteComposable
 import fe.fxsyncshare.Routes
+import fe.fxsyncshare.composable.page.login.LoginRoute
+import fe.fxsyncshare.composable.page.main.NewMainRoute
 
 @Composable
 fun MainNavHost(
@@ -19,11 +21,15 @@ fun MainNavHost(
         startDestination = Routes.Main
     ) {
         composable(route = Routes.Main) {
-            MainRoute(navController = navController)
+            NewMainRoute(navigate = navigate)
+        }
+
+        composable(route = Routes.Login) {
+            LoginRoute(navigate=navigate)
         }
 
 //        argumentRouteComposable(route = Routes.Login) { entry, route ->
-////            LoginRoute(navController = navController, authUrl = route.authUrl)
+//            LoginRoute(authUrl = route.authUrl)
 //        }
     }
 }

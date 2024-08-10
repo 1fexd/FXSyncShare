@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -160,8 +161,8 @@ class BottomSheetActivity : BaseComponentActivity() {
         }
 
     @Composable
-    fun SyncDevice(loading: Boolean, device: Device, onClick: () -> Unit) {
-        TextButton(onClick = onClick) {
+    fun SyncDevice(modifier: Modifier = Modifier, loading: Boolean, device: Device, onClick: () -> Unit) {
+        TextButton(modifier = modifier, onClick = onClick) {
             if (loading) {
                 SyncDeviceLoadIndicator()
             } else {
@@ -200,23 +201,33 @@ class BottomSheetActivity : BaseComponentActivity() {
     }
 
     @Composable
-    @Preview
+    @Preview(showBackground = true)
     fun SyncDevicePreview() {
-        PreviewThemeNew {
-            SyncDevice(
-                device = Device(
-                    "123",
-                    "FirefoxSync on Android 14",
-                    DeviceType.DESKTOP,
-                    false,
-                    System.currentTimeMillis(),
-                    listOf(DeviceCapability.SEND_TAB),
-                    false,
-                    null
-                ),
-                onClick = {},
-                loading = false
+        val targets = listOf(
+            Device(
+                "d4f9ad54-bb69-4749-9da4-9817f6361919",
+                "Firefox",
+                DeviceType.DESKTOP,
+                false,
+                System.currentTimeMillis(),
+                listOf(DeviceCapability.SEND_TAB),
+                false,
+                null
+            ),
+            Device(
+                "c613492b-37be-49f6-a107-c5f33c7b6ee5",
+                "FirefoxSync on Android 14",
+                DeviceType.MOBILE,
+                false,
+                System.currentTimeMillis(),
+                listOf(DeviceCapability.SEND_TAB),
+                false,
+                null
             )
+        )
+
+        PreviewThemeNew {
+            SyncDeviceRow(targets = targets, sendTab = {}, closeDrawer = {})
         }
     }
 }

@@ -44,6 +44,16 @@ object _1fexd : DependencyGroup(group = "com.github.1fexd") {
             val components = module("components")
             val util = module("util")
         }
+
+        val lifecycleUtil = LifecycleUtil
+
+        object LifecycleUtil : DependencyNotationAndGroup(
+            group = "$group.android-lifecycle-util",
+            name = "android-lifecycle-util"
+        ) {
+            val core = module("core")
+            val koin = module("koin")
+        }
     }
 
     val uriParser = DependencyNotation(group = group, name = "uriparser")

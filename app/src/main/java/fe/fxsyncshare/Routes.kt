@@ -16,8 +16,9 @@ data class LoginRouteData(val authUrl: String) : RouteData {
 
 object Routes {
     const val Main = "route__main"
-    val Login = route(
-        "route__login",
-        route = LoginRouteData
-    )
+//    val Login = route(
+//        "route__login",
+//        route = LoginRouteData
+//    )
+    const val Login = "route__login"
 }
