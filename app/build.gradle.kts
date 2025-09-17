@@ -1,31 +1,34 @@
-import de.fayard.refreshVersions.core.versionFor
-import fe.buildsrc.KotlinClosure4
-import fe.buildsrc.dependency.MozillaComponents
-import fe.buildsrc.Version
-import fe.buildsrc.dependency._1fexd
-import fe.buildsrc.extension.getOrSystemEnv
-import fe.buildsrc.extension.readPropertiesOrNull
-import net.nemerosa.versioning.ReleaseInfo
-import net.nemerosa.versioning.SCMInfo
-import net.nemerosa.versioning.VersioningExtension
+import com.gitlab.grrfe.gradlebuild.android.AndroidSdk
+import com.gitlab.grrfe.gradlebuild.common.version.CurrentTagMode
+import com.gitlab.grrfe.gradlebuild.common.version.TagReleaseParser
+import com.gitlab.grrfe.gradlebuild.common.version.asProvider
+import com.gitlab.grrfe.gradlebuild.common.version.closure
+import fe.build.dependencies.Grrfe
+import fe.build.dependencies.MozillaComponents
+import fe.build.dependencies._1fexd
+import fe.buildlogic.Version
+import fe.buildlogic.extension.getOrSystemEnv
+import fe.buildlogic.extension.readPropertiesOrNull
+import fe.buildlogic.version.AndroidVersionStrategy
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 plugins {
+    kotlin("android")
+    kotlin("plugin.compose")
+    kotlin("plugin.serialization")
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
     id("net.nemerosa.versioning")
+    id("kotlin-parcelize")
+    id("com.gitlab.grrfe.new-build-logic-plugin")
 }
 
 // Must be defined before the android block, or else it won't work
 versioning {
-    releaseMode = KotlinClosure4<String?, String?, String?, VersioningExtension, String>({ _, _, currentTag, _ ->
-        currentTag
-    })
-
-    releaseParser = KotlinClosure2<SCMInfo, String, ReleaseInfo>({ info, _ -> ReleaseInfo("release", info.tag) })
+    releaseMode = CurrentTagMode.closure
+    releaseParser = TagReleaseParser.closure
 }
 
 var appName = "FXSyncShare"
@@ -33,29 +36,29 @@ val dtf: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH_mm_ss"
 
 android {
     namespace = "fe.fxsyncshare"
-    compileSdk = Version.COMPILE_SDK
+    compileSdk = AndroidSdk.COMPILE_SDK
 
     defaultConfig {
         applicationId = "fe.fxsyncshare"
-        minSdk = Version.MIN_SDK
-        targetSdk = Version.COMPILE_SDK
+        minSdk = AndroidSdk.MIN_SDK
+        targetSdk = AndroidSdk.COMPILE_SDK
 
         val now = System.currentTimeMillis()
+        val provider = AndroidVersionStrategy(now)
+
+        val versionProvider = versioning.asProvider(project, provider)
+        val (name, code, commit, branch) = versionProvider.get()
+
         val localDateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(now), ZoneId.of("UTC"))
-        val versionInfo = providers.provider { versioning.info }.get()
 
-        versionCode = versionInfo.tag?.let {
-            versionInfo.versionNumber.versionCode
-        } ?: (now / 1000).toInt()
+        versionCode = code
+        versionName = name
 
-        versionName = versionInfo.tag ?: versionInfo.full
-        val archivesBaseName = if (versionInfo.tag != null) {
-            "$appName-$versionName"
-        } else "$appName-${dtf.format(localDateTime)}-$versionName"
-
-        setProperty("archivesBaseName", archivesBaseName)
+        setProperty("archivesBaseName", "$appName-${dtf.format(localDateTime)}-$versionName")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testOptions.unitTests.isIncludeAndroidResources = true
+
         vectorDrawables {
             useSupportLibrary = true
         }
@@ -106,12 +109,8 @@ android {
     }
 
     buildFeatures {
-        compose = true
         buildConfig = true
-    }
-
-    composeOptions {
-        kotlinCompilerExtensionVersion = versionFor(AndroidX.compose.compiler)
+        aidl = true
     }
 
     packaging {
@@ -148,9 +147,12 @@ dependencies {
     implementation(MozillaComponents.lib.fetchHttpUrlConnection)
     implementation(MozillaComponents.lib.dataProtect)
 
-    implementation(AndroidX.compose.ui.withVersion("1.7.0-beta06"))
+    implementation(platform(AndroidX.compose.bom))
+    implementation(AndroidX.compose.foundation)
+    implementation(AndroidX.compose.ui)
+    implementation(AndroidX.compose.ui.text)
     implementation(AndroidX.compose.ui.toolingPreview)
-    implementation(AndroidX.compose.material3.withVersion("1.3.0-beta05"))
+    implementation(AndroidX.compose.material3)
     implementation(AndroidX.compose.material.icons.core)
     implementation(AndroidX.compose.material.icons.extended)
 
@@ -168,20 +170,37 @@ dependencies {
     implementation(Koin.android)
     implementation(Koin.compose)
 
-    implementation(_1fexd.android.preference.core)
-    implementation(_1fexd.android.preference.compose)
-    implementation(_1fexd.android.preference.composeMock)
-    implementation(_1fexd.android.compose.dialog)
-    implementation(_1fexd.android.compose.route)
-    implementation(_1fexd.android.span.compose)
-    implementation(_1fexd.android.lifecycleUtil.core)
-    implementation(_1fexd.android.lifecycleUtil.koin)
-    implementation(_1fexd.composeKit.app.core)
-    implementation(_1fexd.composeKit.theme.core)
-    implementation(_1fexd.composeKit.theme.preference)
-    implementation(_1fexd.composeKit.component)
+    implementation(platform(Grrfe.std.bom))
+    implementation(Grrfe.std.core)
+    implementation(Grrfe.std.time.core)
+    implementation(Grrfe.std.time.java)
+    implementation(Grrfe.std.result.core)
+    implementation(Grrfe.std.uri)
+    implementation(Grrfe.std.stringbuilder)
+    implementation(Grrfe.std.test)
+    implementation(Grrfe.std.process.core)
+
+    implementation(platform(_1fexd.composeKit.bom))
+    implementation(_1fexd.composeKit.compose.core)
+    implementation(_1fexd.composeKit.compose.layout)
+    implementation(_1fexd.composeKit.compose.component)
+    implementation(_1fexd.composeKit.compose.app)
+    implementation(_1fexd.composeKit.compose.theme.core)
+    implementation(_1fexd.composeKit.compose.theme.preference)
+    implementation(_1fexd.composeKit.compose.dialog)
+    implementation(_1fexd.composeKit.compose.route)
     implementation(_1fexd.composeKit.core)
-    implementation(_1fexd.composeKit.layout)
+    implementation(_1fexd.composeKit.koin)
+    implementation(_1fexd.composeKit.process)
+    implementation(_1fexd.composeKit.intent)
+    implementation(_1fexd.composeKit.lifecycle.core)
+    implementation(_1fexd.composeKit.lifecycle.koin)
+    implementation(_1fexd.composeKit.preference.core)
+    implementation(_1fexd.composeKit.preference.compose.core)
+    implementation(_1fexd.composeKit.preference.compose.core2)
+    implementation(_1fexd.composeKit.preference.compose.mock)
+    implementation(_1fexd.composeKit.span.core)
+    implementation(_1fexd.composeKit.span.compose)
 
     implementation(COIL)
     implementation(COIL.compose)
