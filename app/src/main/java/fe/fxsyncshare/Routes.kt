@@ -1,18 +1,12 @@
 package fe.fxsyncshare
 
 import androidx.annotation.Keep
-import fe.android.compose.route.util.Route1
-import fe.android.compose.route.util.RouteData
-import fe.android.compose.route.util.route
-
+import fe.composekit.route.Route
+import kotlinx.serialization.Serializable
 
 @Keep
-data class LoginRouteData(val authUrl: String) : RouteData {
-    companion object : Route1<LoginRouteData, String>(
-        Argument(LoginRouteData::authUrl),
-        ::LoginRouteData
-    )
-}
+@Serializable
+data class LoginRoute(val authUrl: String) : Route
 
 object Routes {
     const val Main = "route__main"

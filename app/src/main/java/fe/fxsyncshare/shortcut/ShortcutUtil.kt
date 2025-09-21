@@ -38,36 +38,38 @@ object ShortcutUtil {
 
         val shortcuts = devices
             .take(maxShortcuts)
-            .mapIndexed { index, device -> buildShortcut(context, device, Direction.None) }
+            .mapIndexed { index, device -> buildShortcut(context, device, index, Direction.None) }
 
         return ShortcutManagerCompat.setDynamicShortcuts(context, shortcuts)
     }
 
     fun pushShortcut(context: Context, device: Device, direction: Direction): Boolean {
-        val shortcut = buildShortcut(context, device, direction)
+        val shortcuts = ShortcutManagerCompat.getDynamicShortcuts(context)
+        val shortcut = buildShortcut(context, device, shortcuts.size, direction)
         return ShortcutManagerCompat.pushDynamicShortcut(context, shortcut)
     }
 
-    private fun buildShortcut(context: Context, device: Device, direction: Direction): ShortcutInfoCompat {
+    private fun buildShortcut(context: Context, device: Device, rank: Int, direction: Direction): ShortcutInfoCompat {
         return ShortcutInfoCompat.Builder(context, device.id)
-            .setIcon(IconCompat.createWithResource(context, R.mipmap.ic_launcher))
+            .setLongLived(true)
+            .setIntent(device.createIntent(context))
             .setShortLabel(device.displayName)
             .setLongLabel(device.id)
-            .setLongLived(true)
-//            .setRank(rank)
+            .setIcon(IconCompat.createWithResource(context, R.mipmap.ic_launcher))
+            .setRank(rank)
             .setActivity(ComponentName(context, BottomSheetActivity::class.java))
-            .setIntent(device.createIntent(context))
             .setCategories(setOf(CATEGORY_LINK_SHARE_TARGET))
             .setPerson(device.toPerson())
             .setLocusId(LocusIdCompat(device.id))
-            .apply { direction.capability?.let { addCapabilityBinding(it) } }
+//            .apply { direction.capability?.let { addCapabilityBinding(it) } }
             .build()
     }
 
     private fun Device.toPerson(): Person {
         return Person.Builder()
             .setKey(id)
-//            .setImportant(true)
+            .setBot(true)
+            .setImportant(true)
             .setName(displayName)
             .build()
     }

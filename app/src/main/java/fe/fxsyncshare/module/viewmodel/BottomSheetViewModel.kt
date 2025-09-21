@@ -42,6 +42,9 @@ class BottomSheetViewModel(
     }
 
     suspend fun sendTab(device: Device, tab: DeviceCommandOutgoing.SendTab) = withContext(Dispatchers.IO) {
+        deviceConstellation?.state()?.let {
+            firefoxSync.publishShortcuts(it)
+        }
         firefoxSync.pushShortcut(device, ShortcutUtil.Direction.Send)
         deviceConstellation?.sendCommandToDevice(device.id, tab)
     }

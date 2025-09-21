@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalMaterial3ExpressiveApi::class)
+
 package fe.fxsyncshare.composable.page.login
 
 import android.annotation.SuppressLint
@@ -9,6 +11,8 @@ import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ContainedLoadingIndicator
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -27,7 +31,10 @@ import fe.fxsyncshare.module.viewmodel.LoginViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
-fun LoginRoute(navigate: (String) -> Unit, viewModel: LoginViewModel = koinViewModel()) {
+fun LoginRoute(
+    navigate: (String) -> Unit,
+    viewModel: LoginViewModel = koinViewModel()
+) {
     val loginState by viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
 
@@ -52,7 +59,7 @@ fun LoginRoute(navigate: (String) -> Unit, viewModel: LoginViewModel = koinViewM
 
     Box(
         modifier = Modifier
-            .systemBarsPadding()
+            .systemBarsPadding().statusBarsPadding()
             .fillMaxSize()
     ) {
         when (loginState) {
@@ -83,7 +90,7 @@ private fun BoxScope.LoadingIndicator(@StringRes id: Int) {
         modifier = Modifier.align(Alignment.Center),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        CircularProgressIndicator()
+        ContainedLoadingIndicator()
         Spacer(modifier = Modifier.height(12.dp))
         Text(text = stringResource(id))
     }
@@ -104,6 +111,8 @@ private fun Context.createWebView(redirectUrl: String, onLoginComplete: LoginCal
         ViewGroup.LayoutParams.MATCH_PARENT,
         ViewGroup.LayoutParams.MATCH_PARENT
     )
+
+//    val controller = webView.windowInsetsController?.let { it.systemBarsAppearance }
 
     // Need JS, cookies and localStorage.
     webView.settings.domStorageEnabled = true

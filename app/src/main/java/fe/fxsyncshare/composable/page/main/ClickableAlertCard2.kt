@@ -1,6 +1,7 @@
+@file:OptIn(ExperimentalMaterial3ExpressiveApi::class)
+
 package fe.fxsyncshare.composable.page.main
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Warning
@@ -11,8 +12,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import fe.android.compose.content.OptionalContent
 import fe.android.compose.extension.atElevation
 import fe.android.compose.extension.optionalClickable
 import fe.android.compose.icon.iconPainter
@@ -24,7 +27,6 @@ import fe.composekit.component.PreviewThemeNew
 import fe.composekit.component.card.AlertCardContentLayout
 import fe.composekit.component.card.AlertCardDefaults
 import fe.composekit.component.icon.FilledIcon
-import fe.composekit.component.list.column.shape.ShapeListItemDefaults
 import fe.composekit.component.shape.CustomShapeDefaults
 
 
@@ -39,7 +41,7 @@ fun ClickableAlertCard2(
     contentDescription: String?,
     headline: TextContent,
     subtitle: TextContent,
-    content: @Composable (() -> Unit)? = null,
+    content: OptionalContent = null,
 ) {
     Card(
         modifier = Modifier
@@ -59,7 +61,7 @@ fun ClickableAlertCard2(
                 MaterialTheme.colorScheme.surfaceTint, 6.dp
             )
 
-            if(imageVector != null){
+            if (imageVector != null) {
                 FilledIcon(
                     icon = imageVector.iconPainter,
                     iconSize = 20.dp,
@@ -73,16 +75,34 @@ fun ClickableAlertCard2(
                     )
                 )
             } else {
-                CircularLoaderIcon(
-                    iconSize = 20.dp,
-                    containerSize = 34.dp,
-                    colors = IconButtonDefaults.iconButtonColors(
-                        containerColor = containerColor,
+                val expressive = true
+                if (expressive) {
+                    if (LocalInspectionMode.current) {
+                        ContainedLoadingIndicator(
+                            modifier = Modifier
+                                .size(34.dp)
+                                .then(modifier),
+                            progress = { 0.1f }
+                        )
+                    } else {
+                        ContainedLoadingIndicator(
+                            modifier = Modifier
+                                .size(34.dp)
+                                .then(modifier),
+                        )
+                    }
+                } else {
+                    CircularLoaderIcon(
+                        iconSize = 20.dp,
+                        containerSize = 34.dp,
+                        colors = IconButtonDefaults.iconButtonColors(
+                            containerColor = containerColor,
 //                    containerColor = MaterialTheme.colorScheme.onPrimaryContainer,
 //                    contentColor = Color.White
-                        contentColor = contentColorFor(backgroundColor = containerColor)
+                            contentColor = contentColorFor(backgroundColor = containerColor)
+                        )
                     )
-                )
+                }
             }
 
             AlertCardContentLayout(title = {

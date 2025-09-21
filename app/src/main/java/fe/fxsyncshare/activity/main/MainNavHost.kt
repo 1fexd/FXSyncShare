@@ -25,7 +25,7 @@ fun MainNavHost(
         }
 
         composable(route = Routes.Login) {
-            LoginRoute(navigate=navigate)
+            LoginRoute(navigate = navigate)
         }
 
 //        argumentRouteComposable(route = Routes.Login) { entry, route ->

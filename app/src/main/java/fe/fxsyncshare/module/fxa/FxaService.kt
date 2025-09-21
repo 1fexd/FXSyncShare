@@ -1,14 +1,21 @@
 package fe.fxsyncshare.module.fxa
 
+import android.app.Application
 import androidx.lifecycle.LifecycleOwner
-import fe.android.lifecycle.LifecycleService
-import fe.fxsyncshare.FXSyncShareApp
-import fe.fxsyncshare.extension.koin.service
+import fe.android.lifecycle.LifecycleAwareService
+import fe.android.lifecycle.koin.extension.service
 import fe.fxsyncshare.shortcut.ShortcutUtil
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import mozilla.appservices.RustComponentsInitializer
 import mozilla.components.browser.storage.sync.PlacesHistoryStorage
-import mozilla.components.concept.sync.*
+import mozilla.components.browser.storage.sync.constraints
+import mozilla.components.concept.sync.ConstellationState
+import mozilla.components.concept.sync.Device
+import mozilla.components.concept.sync.DeviceCapability
+import mozilla.components.concept.sync.DeviceConfig
+import mozilla.components.concept.sync.DeviceType
+import mozilla.components.concept.sync.FxAEntryPoint
 import mozilla.components.lib.fetch.httpurlconnection.HttpURLConnectionClient
 import mozilla.components.service.fxa.PeriodicSyncConfig
 import mozilla.components.service.fxa.SyncConfig
@@ -32,10 +39,10 @@ val firefoxSyncModule = module {
 }
 
 class FxaService(
-    val applicationContext: FXSyncShareApp,
+    val applicationContext: Application,
     val deviceName: String,
     val config: FxaServerConfig,
-) : LifecycleService {
+) : LifecycleAwareService {
     companion object {
         val entrypoint = object : FxAEntryPoint {
             override val entryName: String = "main"
@@ -61,6 +68,7 @@ class FxaService(
     private val historyStorage = lazy { PlacesHistoryStorage(applicationContext) }
 
     init {
+        RustComponentsInitializer.init()
         RustLog.enable()
         RustHttpConfig.setClient(lazy { HttpURLConnectionClient() })
 
@@ -89,12 +97,14 @@ class FxaService(
     override suspend fun onStop() {
     }
 
-    fun publishShortcuts(constellation: ConstellationState) {
+    fun publishShortcuts(constellation: ConstellationState): Boolean {
         val success = ShortcutUtil.publishShortcuts(applicationContext, constellation.otherDevices)
         android.util.Log.d("Shortcuts", "$success")
+        return success
     }
 
     fun pushShortcut(device: Device, direction: ShortcutUtil.Direction) {
         ShortcutUtil.pushShortcut(applicationContext, device, direction)
     }
+
 }

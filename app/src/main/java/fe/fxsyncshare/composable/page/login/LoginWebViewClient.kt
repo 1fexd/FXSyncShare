@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import android.net.Uri
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import androidx.core.net.toUri
 
 typealias LoginCallback = (code: String, state: String, action: String) -> Unit
 
@@ -13,7 +14,7 @@ class LoginWebViewClient(
 ) : WebViewClient() {
     override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
         if (url != null && url.startsWith(redirectUrl)) {
-            val uri = Uri.parse(url)
+            val uri = url.toUri()
 
             val code = uri.getQueryParameter("code")
             val state = uri.getQueryParameter("state")
