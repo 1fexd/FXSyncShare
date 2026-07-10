@@ -69,7 +69,7 @@ fun BottomSheetContent(targets: List<Device>?, closeDrawer: () -> Unit, sendTab:
                 closeDrawer = closeDrawer
             )
         } else {
-            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+            ContainedLoadingIndicator(modifier = Modifier.align(Alignment.Center))
         }
     }
 }
