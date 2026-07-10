@@ -1,42 +1,30 @@
+import com.gitlab.grrfe.gradlebuild.Version
 import com.gitlab.grrfe.gradlebuild.android.AndroidSdk
-import com.gitlab.grrfe.gradlebuild.common.version.CurrentTagMode
-import com.gitlab.grrfe.gradlebuild.common.version.TagReleaseParser
-import com.gitlab.grrfe.gradlebuild.common.version.asProvider
-import com.gitlab.grrfe.gradlebuild.common.version.closure
+import com.gitlab.grrfe.gradlebuild.android.ArchiveBaseName
+import com.gitlab.grrfe.gradlebuild.android.version.DefaultFallbackVersionCodeProducer
+import com.gitlab.grrfe.gradlebuild.android.version.SemverProducer
+import com.gitlab.grrfe.gradlebuild.android.version.createAndroidVersionProvider
+import com.gitlab.grrfe.gradlebuild.util.PropertiesFile
+import com.gitlab.grrfe.gradlebuild.util.SystemEnvironment
+import com.gitlab.grrfe.gradlebuild.util.withProviders
 import fe.build.dependencies.Grrfe
 import fe.build.dependencies.MozillaComponents
 import fe.build.dependencies._1fexd
-import fe.buildlogic.Version
-import fe.buildlogic.extension.getOrSystemEnv
-import fe.buildlogic.extension.readPropertiesOrNull
-import fe.buildlogic.version.AndroidVersionStrategy
-import java.time.Instant
-import java.time.LocalDateTime
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
 
 plugins {
-    kotlin("android")
     kotlin("plugin.compose")
     kotlin("plugin.serialization")
     id("com.android.application")
-    id("net.nemerosa.versioning")
+    id("androidx.navigation.safeargs.kotlin")
     id("kotlin-parcelize")
-    id("com.gitlab.grrfe.new-build-logic-plugin")
-}
-
-// Must be defined before the android block, or else it won't work
-versioning {
-    releaseMode = CurrentTagMode.closure
-    releaseParser = TagReleaseParser.closure
+    id("com.gitlab.grrfe.android-build-plugin")
 }
 
 var appName = "FXSyncShare"
-val dtf: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH_mm_ss")
 
 android {
     namespace = "fe.fxsyncshare"
-    compileSdk = AndroidSdk.COMPILE_SDK
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "fe.fxsyncshare"
@@ -44,17 +32,18 @@ android {
         targetSdk = AndroidSdk.COMPILE_SDK
 
         val now = System.currentTimeMillis()
-        val provider = AndroidVersionStrategy(now)
 
-        val versionProvider = versioning.asProvider(project, provider)
+        val versionProvider = createAndroidVersionProvider(
+            versionCodeProducer = SemverProducer,
+            fallbackVersionCodeProducer = DefaultFallbackVersionCodeProducer
+        )
         val (name, code, commit, branch) = versionProvider.get()
-
-        val localDateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(now), ZoneId.of("UTC"))
-
         versionCode = code
         versionName = name
 
-        setProperty("archivesBaseName", "$appName-${dtf.format(localDateTime)}-$versionName")
+        with(ArchiveBaseName) {
+            project.base.setArchivesName(appName, name, now)
+        }
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         testOptions.unitTests.isIncludeAndroidResources = true
@@ -66,12 +55,14 @@ android {
 
     signingConfigs {
         register("env") {
-            val properties = rootProject.file(".ignored/keystore.properties").readPropertiesOrNull()
-
-            storeFile = properties.getOrSystemEnv("KEYSTORE_FILE_PATH")?.let { rootProject.file(it) }
-            storePassword = properties.getOrSystemEnv("KEYSTORE_PASSWORD")
-            keyAlias = properties.getOrSystemEnv("KEY_ALIAS")
-            keyPassword = properties.getOrSystemEnv("KEY_PASSWORD")
+            val properties = with(PropertiesFile) {
+                rootProject.file(".ignored/keystore.properties").readPropertiesOrNull()
+            }
+            val provider = withProviders(properties, SystemEnvironment)
+            storeFile = provider.get("KEYSTORE_FILE_PATH")?.let { rootProject.file(it) }
+            storePassword = provider.get("KEYSTORE_PASSWORD")
+            keyAlias = provider.get("KEY_ALIAS")
+            keyPassword = provider.get("KEY_PASSWORD")
         }
     }
 
@@ -104,13 +95,10 @@ android {
         isCoreLibraryDesugaringEnabled = true
     }
 
-    kotlin {
-        jvmToolchain(Version.JVM)
-    }
-
     buildFeatures {
         buildConfig = true
         aidl = true
+        resValues = true
     }
 
     packaging {
@@ -132,6 +120,10 @@ android {
     }
 }
 
+kotlin {
+    jvmToolchain(Version.JVM)
+}
+
 dependencies {
     coreLibraryDesugaring(Android.tools.desugarJdkLibs)
 
@@ -141,13 +133,12 @@ dependencies {
     implementation(MozillaComponents.service.firefoxAccounts)
     implementation(MozillaComponents.service.syncLogins)
     implementation(MozillaComponents.service.syncAutofill)
-    implementation(MozillaComponents.support.rustLog)
-    implementation(MozillaComponents.support.rustHttp)
     implementation(MozillaComponents.support.utils)
+    implementation(MozillaComponents.support.appServices)
     implementation(MozillaComponents.lib.fetchHttpUrlConnection)
     implementation(MozillaComponents.lib.dataProtect)
 
-    implementation(platform(AndroidX.compose.bom))
+    implementation(platform("androidx.compose:compose-bom-alpha:_"))
     implementation(AndroidX.compose.foundation)
     implementation(AndroidX.compose.ui)
     implementation(AndroidX.compose.ui.text)
@@ -201,6 +192,7 @@ dependencies {
     implementation(_1fexd.composeKit.preference.compose.mock)
     implementation(_1fexd.composeKit.span.core)
     implementation(_1fexd.composeKit.span.compose)
+    implementation(_1fexd.composeKit.ext.mozillaSupportUtils)
 
     implementation(COIL)
     implementation(COIL.compose)

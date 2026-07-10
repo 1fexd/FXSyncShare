@@ -1,10 +1,14 @@
 @file:Suppress("UnstableApiUsage")
 
+import com.gitlab.grrfe.gradlebuild.config.configureRepositories
+import com.gitlab.grrfe.gradlebuild.repository.GradlePluginPortalRepository
+import com.gitlab.grrfe.gradlebuild.repository.MavenRepository
+import com.gitlab.grrfe.gradlebuild.repository.google
+import com.gitlab.grrfe.gradlebuild.repository.jitpack
+import com.gitlab.grrfe.gradlebuild.repository.mavenCentral
+import com.gitlab.grrfe.gradlebuild.repository.mozilla
 import fe.build.dependencies.Grrfe
 import fe.build.dependencies._1fexd
-import fe.buildsettings.config.GradlePluginPortalRepository
-import fe.buildsettings.config.MavenRepository
-import fe.buildsettings.config.configureRepositories
 
 rootProject.name = "FXSyncShare"
 
@@ -18,24 +22,21 @@ pluginManagement {
 
     plugins {
         id("de.fayard.refreshVersions") version "0.60.6"
-        id("org.gradle.toolchains.foojay-resolver-convention") version "0.10.0"
+        id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
         id("com.android.library")
-        id("org.jetbrains.kotlin.android")
-        id("net.nemerosa.versioning")
-        id("androidx.navigation.safeargs") version "2.8.2"
+        id("androidx.navigation.safeargs") version "2.9.6"
     }
 
     when (val gradleBuildDir = extra.properties["gradle.build.dir"]) {
         null -> {
             val gradleBuildVersion = extra.properties["gradle.build.version"]
-            val plugins = extra.properties["gradle.build.plugins"]
-                .toString().trim().split(",")
-                .map { it.trim().split("=") }
-                .filter { it.size == 2 }
-                .associate { it[0] to it[1] }
             resolutionStrategy {
                 eachPlugin {
-                    plugins[requested.id.id]?.let { useModule("$it:$gradleBuildVersion") }
+                    with(requested.id) {
+                        if (namespace == "com.gitlab.grrfe") {
+                            useModule("com.gitlab.grrfe.gradle-build:$name:$gradleBuildVersion")
+                        }
+                    }
                 }
             }
         }
@@ -46,14 +47,14 @@ pluginManagement {
 plugins {
     id("de.fayard.refreshVersions")
     id("org.gradle.toolchains.foojay-resolver-convention")
-    id("com.gitlab.grrfe.build-settings-plugin")
+    id("com.gitlab.grrfe.settings-build-plugin")
 }
 
 configureRepositories(
-    MavenRepository.Google,
-    MavenRepository.MavenCentral,
-    MavenRepository.Jitpack,
-    MavenRepository.Mozilla,
+    MavenRepository.google(),
+    MavenRepository.mavenCentral(),
+    MavenRepository.jitpack(),
+    MavenRepository.mozilla(),
     GradlePluginPortalRepository
 )
 

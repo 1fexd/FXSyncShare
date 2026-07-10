@@ -13,6 +13,7 @@ import androidx.lifecycle.lifecycleScope
 import fe.composekit.appbase.AppBaseComponentActivity
 import fe.composekit.appbase.AppTheme
 import fe.composekit.intent.IntentParser
+import fe.composekit.mozilla.components.support.utils.toSafeIntent
 import fe.fxsyncshare.composable.component.bottomsheet.ImprovedBottomDrawer
 import fe.fxsyncshare.composable.theme.AppColor
 import fe.fxsyncshare.composable.theme.Typography
@@ -21,7 +22,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import mozilla.components.concept.sync.DeviceCapability
 import mozilla.components.concept.sync.DeviceCommandOutgoing
-import mozilla.components.support.utils.toSafeIntent
+import mozilla.components.concept.sync.TabPrivacy
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class BottomSheetActivity : AppBaseComponentActivity() {
@@ -88,7 +89,7 @@ class BottomSheetActivity : AppBaseComponentActivity() {
                 BottomSheetContent(
                     targets = targets,
                     closeDrawer = hideDrawer,
-                    sendTab = { viewModel.sendTab(it, DeviceCommandOutgoing.SendTab("", url)) }
+                    sendTab = { viewModel.sendTab(it, DeviceCommandOutgoing.SendTab("", url, TabPrivacy.Normal)) }
                 )
             }
         )

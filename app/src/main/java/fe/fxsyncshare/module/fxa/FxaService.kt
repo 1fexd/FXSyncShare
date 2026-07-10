@@ -7,9 +7,7 @@ import fe.android.lifecycle.koin.extension.service
 import fe.fxsyncshare.shortcut.ShortcutUtil
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import mozilla.appservices.RustComponentsInitializer
 import mozilla.components.browser.storage.sync.PlacesHistoryStorage
-import mozilla.components.browser.storage.sync.constraints
 import mozilla.components.concept.sync.ConstellationState
 import mozilla.components.concept.sync.Device
 import mozilla.components.concept.sync.DeviceCapability
@@ -22,6 +20,7 @@ import mozilla.components.service.fxa.SyncConfig
 import mozilla.components.service.fxa.SyncEngine
 import mozilla.components.service.fxa.manager.FxaAccountManager
 import mozilla.components.service.fxa.sync.GlobalSyncableStoreProvider
+import mozilla.components.support.AppServicesInitializer
 import mozilla.components.support.base.log.Log
 import mozilla.components.support.base.log.sink.AndroidLogSink
 import mozilla.components.support.rusthttp.RustHttpConfig
@@ -68,7 +67,7 @@ class FxaService(
     private val historyStorage = lazy { PlacesHistoryStorage(applicationContext) }
 
     init {
-        RustComponentsInitializer.init()
+        AppServicesInitializer.init(AppServicesInitializer.Config(null))
         RustLog.enable()
         RustHttpConfig.setClient(lazy { HttpURLConnectionClient() })
 
