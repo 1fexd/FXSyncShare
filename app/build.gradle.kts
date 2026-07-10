@@ -3,6 +3,7 @@ import com.gitlab.grrfe.gradlebuild.android.AndroidSdk
 import com.gitlab.grrfe.gradlebuild.android.ArchiveBaseName
 import com.gitlab.grrfe.gradlebuild.android.version.DefaultFallbackVersionCodeProducer
 import com.gitlab.grrfe.gradlebuild.android.version.SemverProducer
+import com.gitlab.grrfe.gradlebuild.android.version.VersionCodeProducer
 import com.gitlab.grrfe.gradlebuild.android.version.createAndroidVersionProvider
 import com.gitlab.grrfe.gradlebuild.util.PropertiesFile
 import com.gitlab.grrfe.gradlebuild.util.SystemEnvironment
@@ -10,6 +11,8 @@ import com.gitlab.grrfe.gradlebuild.util.withProviders
 import fe.build.dependencies.Grrfe
 import fe.build.dependencies.MozillaComponents
 import fe.build.dependencies._1fexd
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 plugins {
     kotlin("plugin.compose")
@@ -21,6 +24,22 @@ plugins {
 }
 
 var appName = "FXSyncShare"
+object NightlyTagVersionCodeProducer : VersionCodeProducer {
+    private fun readResolve(): Any = NightlyTagVersionCodeProducer
+    private val DTF: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMdd")
+    private val NIGHTLY_TAG_REGEX = Regex("^nightly-(\\d{4})(\\d{2})(\\d{2})(\\d{2})$")
+
+    override fun produceVersionCode(tag: String): Int? {
+        println("Handling nightly tag $tag")
+        val match = NIGHTLY_TAG_REGEX.matchEntire(tag)?.groupValues ?: return null
+
+        val (_, year, month, day, buildNum) = match
+        val date = LocalDate.of(year.toInt(), month.toInt(), day.toInt())
+        val dateStr = date.format(DTF) + buildNum.padStart(1, '0')
+
+        return dateStr.toIntOrNull()
+    }
+}
 
 android {
     namespace = "fe.fxsyncshare"
@@ -34,7 +53,9 @@ android {
         val now = System.currentTimeMillis()
 
         val versionProvider = createAndroidVersionProvider(
-            versionCodeProducer = SemverProducer,
+            versionCodeProducer = { tag ->
+                NightlyTagVersionCodeProducer.produceVersionCode(tag) ?: SemverProducer.produceVersionCode(tag)
+            },
             fallbackVersionCodeProducer = DefaultFallbackVersionCodeProducer
         )
         val (name, code, commit, branch) = versionProvider.get()
@@ -205,7 +226,6 @@ dependencies {
     testImplementation(AndroidX.test.ext.truth)
     testImplementation(AndroidX.test.runner)
     androidTestUtil(AndroidX.test.orchestrator)
-    androidTestImplementation(platform(AndroidX.compose.bom))
 
     debugImplementation(AndroidX.compose.ui.tooling)
     debugImplementation(AndroidX.compose.ui.testManifest)
