@@ -99,7 +99,7 @@ internal fun StatusCard(
     val title = title(syncStatus, accountEvent, oauthAccount)
     val subtitle = subtitle(syncStatus, accountEvent, oauthAccount, profile)
 
-    val row = rememberOptionalContent(isSetup) {
+    val row = rememberOptionalContent(isSetup, isSetup, isReady, isSyncIdle) {
         LoggedInRow(
             buttonColor = buttonColor,
             isSetup = isSetup,
