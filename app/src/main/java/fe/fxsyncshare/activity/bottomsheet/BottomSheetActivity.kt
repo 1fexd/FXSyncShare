@@ -3,6 +3,7 @@ package fe.fxsyncshare.activity.bottomsheet
 import android.content.res.Configuration
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -14,10 +15,12 @@ import fe.composekit.appbase.AppBaseComponentActivity
 import fe.composekit.appbase.AppTheme
 import fe.composekit.intent.IntentParser
 import fe.composekit.mozilla.components.support.utils.toSafeIntent
+import fe.fxsyncshare.R
 import fe.fxsyncshare.composable.component.bottomsheet.ImprovedBottomDrawer
 import fe.fxsyncshare.composable.theme.AppColor
 import fe.fxsyncshare.composable.theme.Typography
 import fe.fxsyncshare.module.viewmodel.BottomSheetViewModel
+import fe.std.result.isFailure
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import mozilla.components.concept.sync.DeviceCapability
@@ -34,7 +37,12 @@ class BottomSheetActivity : AppBaseComponentActivity() {
         Log.d("Intent", "$intent")
         val safeIntent = intent.toSafeIntent()
         val uri = IntentParser.getUriFromIntent(safeIntent)
-        val url = uri.toString()
+        if(uri.isFailure()) {
+            Toast.makeText(this@BottomSheetActivity, R.string.link_sent, Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val url = uri.value.toString()
 
         lifecycleScope.launch {
             viewModel.fetchDeviceConstellation()?.let { constellation ->
