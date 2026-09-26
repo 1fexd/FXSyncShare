@@ -243,7 +243,7 @@ fun JobBuilder<*>.parseOutput(baseOutPathExpr: String): BuildResult {
         shell = Shell.Bash,
         command = bash {
             val cmdReadVersionCode = cat(outputMetaDataJsonVar()) pipe jq("-r '.elements[0].versionCode'")
-            val cmdReadOutputFile = cat(outputMetaDataJsonVar()) pipe jq("-r '.elements[0].outputFile'")
+            val cmdReadOutputFile = cat(outputMetaDataJsonVar()) pipe jq("""-r '[.elements.[].outputFile] | join(",")""")
             exec {
                 githubOutput(versionCodeVar, subshell(cmdReadVersionCode))
                 githubOutput(outputFileVar, subshell(cmdReadOutputFile))
@@ -256,11 +256,11 @@ fun JobBuilder<*>.parseOutput(baseOutPathExpr: String): BuildResult {
 
     return BuildResult(
         outputFilePathStep.outputs[versionCodeVar.name],
-        outputFilePathStep.outputs[outputFileVar.name]
+        outputFilePathStep.outputs[outputFileVar.name].split(",")
     )
 }
 
-class BuildResult(val versionCode: String, val apkName: String)
+class BuildResult(val versionCode: String, val apkNames: List<String>)
 
 fun JobBuilder<*>.buildFlavor(keyStoreFilePath: String): BuildResult {
     run(
@@ -374,7 +374,7 @@ fun WorkflowBuilder.setupWorkflow(release: Boolean) {
             action = UploadArtifact(
                 name = "fxsyncshare-nightly",
                 path = listOf(
-                    """$baseOutPathExpr/${expr(result.apkName)}""",
+                    """$baseOutPathExpr/*.apk""",
                     "app/build/outputs/mapping/${expr(BUILD_FLAVOR_TYPE)}/*.txt"
                 )
             )
@@ -385,7 +385,7 @@ fun WorkflowBuilder.setupWorkflow(release: Boolean) {
             val releaseNote = nightlyReleaseNotesStep.outputs["releaseNote"]
 
             createRelease(
-                """$baseOutPathExpr/${expr(result.apkName)}""",
+                """$baseOutPathExpr/*.apk""",
                 expr(result.versionCode),
                 NIGHTLY_REPO_ACCESS_TOKEN,
                 NIGHTLY_REPO_URL,

@@ -115,11 +115,11 @@ jobs:
       shell: 'bash'
       run: |-
         echo "VERSION_CODE=$(cat "$OUTPUT_METADATA_JSON" | jq -r '.elements[0].versionCode')" >> "$GITHUB_OUTPUT"
-        echo "OUTPUT_FILE=$(cat "$OUTPUT_METADATA_JSON" | jq -r '.elements[0].outputFile')" >> "$GITHUB_OUTPUT"
+        echo "OUTPUT_FILE=$(cat "$OUTPUT_METADATA_JSON" | jq -r '[.elements.[].outputFile] | join(","))" >> "$GITHUB_OUTPUT"
     - id: 'step-8'
       uses: 'actions/upload-artifact@v4'
       with:
         name: 'fxsyncshare-nightly'
         path: |-
-          app/build/outputs/apk/nightly/${{ steps.step-7.outputs.OUTPUT_FILE }}
+          app/build/outputs/apk/nightly/*.apk
           app/build/outputs/mapping/${{ env.BUILD_FLAVOR_TYPE }}/*.txt
