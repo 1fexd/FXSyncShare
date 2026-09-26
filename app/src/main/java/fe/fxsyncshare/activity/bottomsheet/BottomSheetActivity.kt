@@ -15,6 +15,7 @@ import fe.composekit.appbase.AppBaseComponentActivity
 import fe.composekit.appbase.AppTheme
 import fe.composekit.intent.IntentParser
 import fe.composekit.mozilla.components.support.utils.toSafeIntent
+import fe.composekit.theme.preference.PreferenceTheme2
 import fe.fxsyncshare.R
 import fe.fxsyncshare.composable.component.bottomsheet.ImprovedBottomDrawer
 import fe.fxsyncshare.composable.theme.AppColor
@@ -38,7 +39,7 @@ class BottomSheetActivity : AppBaseComponentActivity() {
         val safeIntent = intent.toSafeIntent()
         val uri = IntentParser.getUriFromIntent(safeIntent)
         if(uri.isFailure()) {
-            Toast.makeText(this@BottomSheetActivity, R.string.link_sent, Toast.LENGTH_SHORT).show()
+            Toast.makeText(this@BottomSheetActivity, R.string.invalid_url, Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -53,13 +54,15 @@ class BottomSheetActivity : AppBaseComponentActivity() {
         }
 
         setContent(edgeToEdge = true) {
-            AppTheme(
-                appColor = AppColor,
-                typography = Typography,
-                theme = viewModel.theme(),
-                materialYou = viewModel.themeMaterialYou(),
-                amoled = viewModel.themeAmoled()
-            ) { Wrapper(url) }
+            PreferenceTheme2(themeHolder = viewModel) { theme, themeMaterialYou, themeAmoled ->
+                AppTheme(
+                    appColor = AppColor,
+                    typography = Typography,
+                    theme = theme,
+                    materialYou = themeMaterialYou,
+                    amoled = themeAmoled
+                ) { Wrapper(url) }
+            }
         }
     }
 
@@ -80,11 +83,11 @@ class BottomSheetActivity : AppBaseComponentActivity() {
 
         val configuration = LocalConfiguration.current
         val landscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
-        val isBlackTheme = viewModel.themeAmoled()
+//        val isBlackTheme = viewModel.themeAmoled()
 
         ImprovedBottomDrawer(
             landscape = landscape,
-            isBlackTheme = isBlackTheme,
+//            isBlackTheme = isBlackTheme,
             drawerState = drawerState,
             shape = RoundedCornerShape(
                 topStart = 22.0.dp,
@@ -97,7 +100,7 @@ class BottomSheetActivity : AppBaseComponentActivity() {
                 BottomSheetContent(
                     targets = targets,
                     closeDrawer = hideDrawer,
-                    sendTab = { viewModel.sendTab(it, DeviceCommandOutgoing.SendTab("", url, TabPrivacy.Normal)) }
+                    sendTab = { viewModel.sendTab(it, DeviceCommandOutgoing.SendTab("Tab", url, TabPrivacy.Normal)) }
                 )
             }
         )

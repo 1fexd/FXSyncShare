@@ -7,7 +7,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Settings
-import androidx.compose.material3.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
@@ -22,6 +29,7 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberPermissionState
 import fe.composekit.component.ContentType
 import fe.composekit.component.list.column.SaneLazyColumnLayout
+import fe.fxsyncshare.BuildConfig
 import fe.fxsyncshare.R
 import fe.fxsyncshare.Routes
 import fe.fxsyncshare.composable.theme.HkGroteskFontFamily
@@ -29,11 +37,11 @@ import fe.fxsyncshare.extension.compose.dashedBorder
 import fe.fxsyncshare.module.viewmodel.MainViewModel
 import kotlinx.coroutines.launch
 import mozilla.components.service.fxa.sync.SyncReason
-import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.viewmodel.koinActivityViewModel
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
 @Composable
-fun NewMainRoute(navigate: (String) -> Unit, viewModel: MainViewModel = koinViewModel()) {
+fun NewMainRoute(navigate: (String) -> Unit, viewModel: MainViewModel = koinActivityViewModel()) {
     val syncStatus by viewModel.fxaService.syncStatus.collectAsStateWithLifecycle()
     val oauthAccount by viewModel.fxaService.oauthAccount.collectAsStateWithLifecycle()
     val profile by viewModel.fxaService.profile.collectAsStateWithLifecycle()
@@ -72,20 +80,18 @@ fun NewMainRoute(navigate: (String) -> Unit, viewModel: MainViewModel = koinView
             }
 
             item(key = R.string.main_page__fxa_status_headline, contentType = ContentType.ClickableAlert) {
-                StatusCard(
-                    syncStatus = syncStatus,
-                    accountEvent = accountEvent, oauthAccount = oauthAccount, profile = profile, navigate = navigate,
+                StatusCard(syncStatus = syncStatus, accountEvent = accountEvent, oauthAccount = oauthAccount, profile = profile, navigate = navigate,
                     sync = { scope.launch { viewModel.syncNow(SyncReason.User) } }
                 )
             }
 
-            item {
+            item(key = "login", contentType = ContentType.Button) {
                 Button(onClick = { navigate(Routes.Login) }) {
                     Text(text = "Login")
                 }
             }
 
-            item {
+            item(key = "logout", contentType = ContentType.Button) {
                 Button(onClick = {
                     scope.launch { viewModel.fxaService.accountManager.logout() }
                 }) {
@@ -93,19 +99,19 @@ fun NewMainRoute(navigate: (String) -> Unit, viewModel: MainViewModel = koinView
                 }
             }
 
-            item {
+            item(key = "sync-now", contentType = ContentType.Button) {
                 Button(onClick = { scope.launch { viewModel.syncNow(SyncReason.User) } }) {
                     Text(text = "Sync now")
                 }
             }
 
-            item {
+            item(key = "request-permission", contentType = ContentType.Button) {
                 Button(onClick = { contextActionPermission.launchPermissionRequest() }) {
                     Text(text = "Request permission")
                 }
             }
 
-            item {
+            item(key = "push-dynamic-shortcuts", contentType = ContentType.Button) {
                 Button(onClick = {
                     val result = viewModel.publishShortcuts()
                     Log.d("MainRoute", "publishShortcuts=$result")
@@ -114,7 +120,14 @@ fun NewMainRoute(navigate: (String) -> Unit, viewModel: MainViewModel = koinView
                 }
             }
 
-            item {
+            item(key = "toggle-theme", contentType = ContentType.Button) {
+                FilledTonalButton(onClick = {
+                    viewModel.toggleTheme()
+                }) {
+                    Text(text = "Toggle theme")
+                }
+            }
+            item(key = "state", contentType = ContentType.Custom) {
                 Column(
                     modifier = Modifier
                         .dashedBorder(1.dp, Color.Gray, 12.dp)
@@ -124,6 +137,12 @@ fun NewMainRoute(navigate: (String) -> Unit, viewModel: MainViewModel = koinView
                     Text(text = "syncStatus=$syncStatus")
                     Text(text = "oauthAccount=$oauthAccount")
                     Text(text = "profile=$profile")
+                }
+            }
+
+            if (BuildConfig.DEBUG) {
+                item(key = "random-link", contentType = ContentType.Custom) {
+                    RandomLinkCard()
                 }
             }
         }

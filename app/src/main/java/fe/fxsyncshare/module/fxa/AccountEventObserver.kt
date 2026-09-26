@@ -43,13 +43,14 @@ class AccountEventObserver(
 
     override fun onProfileUpdated(profile: Profile) {
         logger.info("onProfileUpdated: $profile")
-        flow.tryEmit(AccountEvent.ProfileUpdated(profile))
+//        flow.tryEmit(AccountEvent.ProfileUpdated(profile))
 
         _profile.tryEmit(profile)
     }
 
     override fun onAuthenticated(account: OAuthAccount, authType: AuthType) {
         logger.info("onAuthenticated: $account, $authType")
+        _oauthAccount.tryEmit(account)
         flow.tryEmit(AccountEvent.Authenticated(account, authType))
     }
 }
@@ -58,8 +59,15 @@ sealed interface AccountEvent {
     data object Waiting : AccountEvent
     data class Ready(val authenticatedAccount: OAuthAccount?) : AccountEvent
     data class FlowError(val error: AuthFlowError) : AccountEvent
-    data class ProfileUpdated(val profile: Profile) : AccountEvent
+//    data class ProfileUpdated(val profile: Profile) : AccountEvent
     data object LoggedOut : AccountEvent
     data object AuthenticationProblems : AccountEvent
     data class Authenticated(val account: OAuthAccount, val authType: AuthType) : AccountEvent
 }
+
+val AccountEvent.isNotLoggedIn: Boolean
+    get() = this is AccountEvent.Waiting || this is AccountEvent.LoggedOut
+
+val AccountEvent.isLoggedIn: Boolean
+    get() = this is AccountEvent.Ready || this is AccountEvent.Authenticated
+

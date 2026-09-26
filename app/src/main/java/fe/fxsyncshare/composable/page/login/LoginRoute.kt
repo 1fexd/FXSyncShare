@@ -9,10 +9,19 @@ import android.webkit.CookieManager
 import android.webkit.WebView
 import android.widget.Toast
 import androidx.annotation.StringRes
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.ContainedLoadingIndicator
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -50,36 +59,43 @@ fun LoginRoute(
             val state = loginState as LoginState.Finished
 
             if (!state.success) {
-                Toast.makeText(context, R.string.settings_login__login_fail_text, Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    context,
+                    R.string.settings_login__login_fail_text,
+                    Toast.LENGTH_SHORT
+                ).show()
             }
 
             navigate(Routes.Main)
         }
     }
 
-    Box(
-        modifier = Modifier
-            .systemBarsPadding().statusBarsPadding()
-            .fillMaxSize()
-    ) {
-        when (loginState) {
-            is LoginState.Idle -> {
-                LoadingIndicator(id = R.string.settings_login__loading_title)
-            }
+    Surface(color = MaterialTheme.colorScheme.background) {
+        Box(
+            modifier = Modifier
+//            .systemBarsPadding().statusBarsPadding()
+                .fillMaxSize()
+                .windowInsetsPadding(WindowInsets.systemBars)
+        ) {
+            when (loginState) {
+                is LoginState.Idle -> {
+                    LoadingIndicator(id = R.string.settings_login__loading_title)
+                }
 
-            is LoginState.Login -> {
-                LoginWebView(
-                    redirectUrl = viewModel.redirectUrl,
-                    authUrl = (loginState as LoginState.Login).authUrl,
-                    onLoginComplete = viewModel::finish
-                )
-            }
+                is LoginState.Login -> {
+                    LoginWebView(
+                        redirectUrl = viewModel.redirectUrl,
+                        authUrl = (loginState as LoginState.Login).authUrl,
+                        onLoginComplete = viewModel::finish
+                    )
+                }
 
-            is LoginState.Finishing -> {
-                LoadingIndicator(id = R.string.settings_login__finishing_title)
-            }
+                is LoginState.Finishing -> {
+                    LoadingIndicator(id = R.string.settings_login__finishing_title)
+                }
 
-            else -> {}
+                else -> {}
+            }
         }
     }
 }

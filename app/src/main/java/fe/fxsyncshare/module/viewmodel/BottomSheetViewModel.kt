@@ -1,25 +1,36 @@
 package fe.fxsyncshare.module.viewmodel
 
+import androidx.lifecycle.ViewModel
+import fe.composekit.theme.preference.ThemeHolder
 import fe.composekit.theme.preference.ThemePreferences
 import fe.fxsyncshare.module.fxa.AccountEvent
 import fe.fxsyncshare.module.fxa.FxaService
 import fe.fxsyncshare.module.preference.app.AppPreferenceRepository
-import fe.fxsyncshare.module.preference.app.AppPreferences
-import fe.fxsyncshare.module.viewmodel.base.BaseViewModel
 import fe.fxsyncshare.shortcut.ShortcutUtil
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.withContext
-import mozilla.components.concept.sync.*
+import mozilla.components.concept.sync.ConstellationState
+import mozilla.components.concept.sync.Device
+import mozilla.components.concept.sync.DeviceCommandOutgoing
+import mozilla.components.concept.sync.DeviceConstellation
+import mozilla.components.concept.sync.DeviceConstellationObserver
+import mozilla.components.support.base.log.logger.Logger
 
 
 class BottomSheetViewModel(
     private val preferenceRepository: AppPreferenceRepository,
     private val firefoxSync: FxaService,
-) : BaseViewModel(preferenceRepository), DeviceConstellationObserver {
-    val theme = preferenceRepository.asState(ThemePreferences.theme)
-    val themeMaterialYou = preferenceRepository.asState(ThemePreferences.themeMaterialYou)
-    val themeAmoled = preferenceRepository.asState(ThemePreferences.themeAmoled)
+) : ViewModel(), DeviceConstellationObserver, ThemeHolder {
+    private val logger = Logger("BottomSheetViewModel")
+
+    override val theme = preferenceRepository.asViewModelState(ThemePreferences.theme)
+    override val themeAmoled  = preferenceRepository.asViewModelState(ThemePreferences.themeAmoled)
+    override val themeMaterialYou = preferenceRepository.asViewModelState(ThemePreferences.themeMaterialYou)
 
     private val deviceConstellation: DeviceConstellation?
         get() = firefoxSync.accountManager.authenticatedAccount()?.deviceConstellation()

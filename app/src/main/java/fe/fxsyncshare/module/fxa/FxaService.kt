@@ -5,9 +5,12 @@ import androidx.lifecycle.LifecycleOwner
 import fe.android.lifecycle.LifecycleAwareService
 import fe.android.lifecycle.koin.extension.service
 import fe.fxsyncshare.shortcut.ShortcutUtil
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import mozilla.components.browser.storage.sync.PlacesHistoryStorage
+import mozilla.components.concept.base.crash.Breadcrumb
+import mozilla.components.concept.base.crash.CrashReporting
 import mozilla.components.concept.sync.ConstellationState
 import mozilla.components.concept.sync.Device
 import mozilla.components.concept.sync.DeviceCapability
@@ -22,6 +25,7 @@ import mozilla.components.service.fxa.manager.FxaAccountManager
 import mozilla.components.service.fxa.sync.GlobalSyncableStoreProvider
 import mozilla.components.support.AppServicesInitializer
 import mozilla.components.support.base.log.Log
+import mozilla.components.support.base.log.logger.Logger
 import mozilla.components.support.base.log.sink.AndroidLogSink
 import mozilla.components.support.rusthttp.RustHttpConfig
 import mozilla.components.support.rustlog.RustLog
@@ -42,6 +46,8 @@ class FxaService(
     val deviceName: String,
     val config: FxaServerConfig,
 ) : LifecycleAwareService {
+    private val logger = Logger("FxaService")
+
     companion object {
         val entrypoint = object : FxAEntryPoint {
             override val entryName: String = "main"
@@ -60,14 +66,22 @@ class FxaService(
             ),
             syncConfig = SyncConfig(
                 supportedEngines = setOf(SyncEngine.History),
-                periodicSyncConfig = PeriodicSyncConfig(periodMinutes = 15, initialDelayMinutes = 5),
+                periodicSyncConfig = PeriodicSyncConfig(
+                    periodMinutes = 15,
+                    initialDelayMinutes = 5
+                ),
             ),
         )
     }
     private val historyStorage = lazy { PlacesHistoryStorage(applicationContext) }
 
     init {
-        AppServicesInitializer.init(AppServicesInitializer.Config(null))
+        AppServicesInitializer.init(
+            AppServicesInitializer.Config(
+                LogCrashReporting(logger),
+                logLevel = Log.Priority.DEBUG
+            )
+        )
         RustLog.enable()
         RustHttpConfig.setClient(lazy { HttpURLConnectionClient() })
 
@@ -98,12 +112,22 @@ class FxaService(
 
     fun publishShortcuts(constellation: ConstellationState): Boolean {
         val success = ShortcutUtil.publishShortcuts(applicationContext, constellation.otherDevices)
-        android.util.Log.d("Shortcuts", "$success")
+        logger.debug("Shortcuts: $success")
         return success
     }
 
     fun pushShortcut(device: Device, direction: ShortcutUtil.Direction) {
         ShortcutUtil.pushShortcut(applicationContext, device, direction)
     }
+}
 
+class LogCrashReporting(private val logger: Logger) : CrashReporting {
+    override fun submitCaughtException(throwable: Throwable): Job {
+        logger.error("Crash", throwable)
+        return Job().apply { complete() }
+    }
+
+    override fun recordCrashBreadcrumb(breadcrumb: Breadcrumb) {
+        logger.error("Breadcrumb: $breadcrumb")
+    }
 }
