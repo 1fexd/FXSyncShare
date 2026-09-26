@@ -115,7 +115,7 @@ jobs:
       shell: 'bash'
       run: |-
         echo "VERSION_CODE=$(cat "$OUTPUT_METADATA_JSON" | jq -r '.elements[0].versionCode')" >> "$GITHUB_OUTPUT"
-        echo "OUTPUT_FILE=$(cat "$OUTPUT_METADATA_JSON" | jq -r '[.elements.[].outputFile] | join(","))" >> "$GITHUB_OUTPUT"
+        echo "OUTPUT_FILE=$(cat "$OUTPUT_METADATA_JSON" | jq -r '[.elements.[].outputFile] | join(",")')" >> "$GITHUB_OUTPUT"
     - id: 'step-8'
       uses: 'actions/upload-artifact@v4'
       with:
