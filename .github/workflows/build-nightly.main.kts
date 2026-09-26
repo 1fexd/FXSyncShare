@@ -243,7 +243,7 @@ fun JobBuilder<*>.parseOutput(baseOutPathExpr: String): BuildResult {
         shell = Shell.Bash,
         command = bash {
             val cmdReadVersionCode = cat(outputMetaDataJsonVar()) pipe jq("-r '.elements[0].versionCode'")
-            val cmdReadOutputFile = cat(outputMetaDataJsonVar()) pipe jq("""-r '[.elements.[].outputFile] | join(",")""")
+            val cmdReadOutputFile = cat(outputMetaDataJsonVar()) pipe jq("""-r '[.elements.[].outputFile] | join(",")'""")
             exec {
                 githubOutput(versionCodeVar, subshell(cmdReadVersionCode))
                 githubOutput(outputFileVar, subshell(cmdReadOutputFile))
