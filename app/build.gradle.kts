@@ -44,6 +44,7 @@ object NightlyTagVersionCodeProducer : VersionCodeProducer {
 android {
     namespace = "fe.fxsyncshare"
     compileSdk = 37
+    compileSdkMinor = 2
 
     defaultConfig {
         applicationId = "fe.fxsyncshare"
