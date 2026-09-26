@@ -2,7 +2,7 @@
 
 @file:Repository("https://repo.maven.apache.org/maven2/")
 @file:Repository("https://bindings.krzeminski.it")
-@file:DependsOn("io.github.typesafegithub:github-workflows-kt:3.7.0")
+@file:DependsOn("io.github.typesafegithub:github-workflows-kt:4.0.0")
 @file:DependsOn("actions:checkout:v6")
 @file:DependsOn("actions:setup-java:v5")
 @file:DependsOn("actions:cache:v4")
@@ -58,7 +58,7 @@ val baseOutPathExpr = "app/build/outputs/apk/nightly"
 val base64ToFile = CustomAction(
     actionOwner = "timheuer",
     actionName = "base64-to-file",
-    actionVersion = "v1",
+    actionVersion = "v2",
     inputs = mapOf(
         "fileName" to "keystore.jks",
         "encodedString" to expr(KEYSTORE_FILE)
@@ -298,7 +298,7 @@ fun JobBuilder<*>.setupAndroid() {
         action = CustomAction(
             actionOwner = "android-actions",
             actionName = "setup-android",
-            actionVersion = "v3",
+            actionVersion = "v4",
         )
     )
     uses(action = ActionsSetupGradle())
